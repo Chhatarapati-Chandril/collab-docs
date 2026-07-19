@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CollabDocs — Architecture</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Inter, 'Segoe UI', system-ui, sans-serif;
+    background:#16181d;
+    color:#e5e7eb;
+    padding:40px 32px 80px;
+    min-height:100vh;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #f8fafc;
+    letter-spacing: -0.5px;
+  }
+  .header h1 span { color: #c9ced6; }
+  .header p {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #8b929d;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* Main grid */
+  .arch {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 0;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* Layer labels */
+  .layer-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #7b828c;
+    margin-bottom: 10px;
+    padding-left: 4px;
+  }
+
+  /* Boxes */
+  .box {
+    border-radius: 14px;
+    padding: 20px;
+    margin: 8px;
+    border: 1px solid transparent;
+    position: relative;
+    box-shadow:0 1px 2px rgba(0,0,0,.15),0 10px 30px rgba(0,0,0,.12);
+  }
+
+  .box-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .box-title .icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .box-items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .box-items li {
+    font-size: 11px;
+    color: #c9ced6;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .box-items li:last-child { border-bottom: none; }
+
+  .tag {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+
+  /* Color themes per box */
+  .theme-indigo {
+    background: #22262d;
+    border-color: #343942;
+  }
+  .theme-indigo .box-title { color: #eceff3; }
+  .theme-indigo .icon { background: #2b3038; color: #c9ced6; }
+  .theme-indigo .tag { background: #2b3038; color: #c9ced6; }
+
+  .theme-violet {
+    background: #22262d;
+    border-color: #343942;
+  }
+  .theme-violet .box-title { color: #eceff3; }
+  .theme-violet .icon { background: #2b3038; color: #c9ced6; }
+  .theme-violet .tag { background: #2b3038; color: #c9ced6; }
+
+  .theme-blue {
+    background: #22262d;
+    border-color: #343942;
+  }
+  .theme-blue .box-title { color: #eceff3; }
+  .theme-blue .icon { background: #2b3038; color: #c9ced6; }
+  .theme-blue .tag { background: #2b3038; color: #c9ced6; }
+
+  .theme-cyan {
+    background: #22262d;
+    border-color: #343942;
+  }
+  .theme-cyan .box-title { color: #eceff3; }
+  .theme-cyan .icon { background: #2b3038; color: #c9ced6; }
+  .theme-cyan .tag { background: #2b3038; color: #c9ced6; }
+
+  .theme-emerald {
+    background: #22262d;
+    border-color: #343942;
+  }
+  .theme-emerald .box-title { color: #eceff3; }
+  .theme-emerald .icon { background: #2b3038; color: #c9ced6; }
+  .theme-emerald .tag { background: #2b3038; color: #c9ced6; }
+
+  .theme-amber {
+    background: #22262d;
+    border-color: #343942;
+  }
+  .theme-amber .box-title { color: #eceff3; }
+  .theme-amber .icon { background: #2b3038; color: #c9ced6; }
+  .theme-amber .tag { background: #2b3038; color: #c9ced6; }
+
+  .theme-rose {
+    background: #22262d;
+    border-color: #343942;
+  }
+  .theme-rose .box-title { color: #eceff3; }
+  .theme-rose .icon { background: #2b3038; color: #c9ced6; }
+  .theme-rose .tag { background: #2b3038; color: #c9ced6; }
+
+  .theme-slate {
+    background: #22262d;
+    border-color: #3d434d;
+  }
+  .theme-slate .box-title { color: #eceff3; }
+  .theme-slate .icon { background: #2b3038; color: #c9ced6; }
+  .theme-slate .tag { background: #2b3038; color: #c9ced6; }
+
+  /* Full width row */
+  .full-row {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .full-row .box { flex: 1; }
+
+  /* Arrows section */
+  .arrows-row {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 4px 0;
+    margin: 0 8px;
+  }
+
+  .arrow-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+  }
+
+  .arrow-label {
+    font-size: 9px;
+    color: #7b828c;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+
+  .arrow-line {
+    width: 1px;
+    height: 28px;
+    background: linear-gradient(to bottom, #3d434d, #c9ced6);
+  }
+
+  .arrow-head {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid #c9ced6;
+  }
+
+  .arrow-both {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .arrow-both .arrow-line-h {
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(to right, #3d434d, #c9ced6);
+  }
+
+  /* Flow diagram section */
+  .flow-section {
+    grid-column: 1 / -1;
+    margin: 24px 8px 0;
+    border: 1px solid #2b3038;
+    border-radius: 12px;
+    padding: 24px;
+    background: #1b1f25;
+  }
+
+  .flow-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #c9ced6;
+    margin-bottom: 20px;
+  }
+
+  .flow-steps {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-width: 110px;
+  }
+
+  .step-bubble {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    margin-bottom: 8px;
+    border: 1px solid #3d434d;
+    background: #2b3038;
+  }
+
+  .step-num {
+    font-size: 9px;
+    font-weight: 700;
+    color: #c9ced6;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+
+  .step-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #e2e8f0;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .step-sub {
+    font-size: 10px;
+    color: #8b929d;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  .flow-arrow {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding-top: 18px;
+    color: #3d434d;
+    font-size: 18px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+
+  /* Legend */
+  .legend {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 20px;
+    margin: 20px 8px 0;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #8b929d;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* Section headers */
+  .section-header {
+    grid-column: 1 / -1;
+    padding: 8px 12px;
+    margin: 8px 8px 0;
+    border-radius: 6px;
+    background: #22262d;
+    border-left: 3px solid #c9ced6;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #c9ced6;
+  }
+
+  .two-col {
+    grid-column: span 1;
+  }
+
+  .three-col {
+    grid-column: span 3;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span>CollabDocs</span> — High-Level Architecture</h1>
+  <p>System Design Overview · Angular + NestJS + Yjs + Socket.IO</p>
+</div>
+
+<div class="arch">
+
+  <!-- CLIENT LAYER -->
+  <div class="section-header">① Client Layer — Angular SPA</div>
+
+  <div class="box theme-indigo">
+    <div class="box-title">
+      <div class="icon">✏️</div>
+      TipTap Editor
+    </div>
+    <ul class="box-items">
+      <li><span class="tag">UI</span> Rich text rendering</li>
+      <li><span class="tag">UI</span> Bold, italic, headings, lists</li>
+      <li><span class="tag">UI</span> Image insertion</li>
+      <li><span class="tag">UI</span> Collaborative cursors</li>
+      <li><span class="tag">UI</span> Offline indicator</li>
+    </ul>
+  </div>
+
+  <div class="box theme-violet">
+    <div class="box-title">
+      <div class="icon">🔀</div>
+      Yjs (Client)
+    </div>
+    <ul class="box-items">
+      <li><span class="tag">CRDT</span> Local doc state</li>
+      <li><span class="tag">CRDT</span> Generates binary updates</li>
+      <li><span class="tag">CRDT</span> Applies remote updates</li>
+      <li><span class="tag">CRDT</span> Merges concurrent edits</li>
+      <li><span class="tag">CRDT</span> Offline queue</li>
+    </ul>
+  </div>
+
+  <div class="box theme-blue">
+    <div class="box-title">
+      <div class="icon">🔌</div>
+      Socket.IO Client
+    </div>
+    <ul class="box-items">
+      <li><span class="tag">WS</span> Sends Yjs updates</li>
+      <li><span class="tag">WS</span> Receives broadcasts</li>
+      <li><span class="tag">WS</span> Presence events</li>
+      <li><span class="tag">WS</span> Notification events</li>
+      <li><span class="tag">HTTP</span> REST calls via HttpClient</li>
+    </ul>
+  </div>
+
+  <!-- ARROWS DOWN -->
+  <div class="arrows-row">
+    <div class="arrow-group">
+      <div class="arrow-label">TipTap ↔ Yjs binding</div>
+      <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+    </div>
+    <div class="arrow-group">
+      <div class="arrow-label">Yjs updates via Socket.IO</div>
+      <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+    </div>
+    <div class="arrow-group">
+      <div class="arrow-label">REST + WebSocket</div>
+      <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+    </div>
+  </div>
+
+  <!-- SERVER LAYER -->
+  <div class="section-header">② Server Layer — NestJS</div>
+
+  <div class="box theme-cyan">
+    <div class="box-title">
+      <div class="icon">⚡</div>
+      WebSocket Gateway
+    </div>
+    <ul class="box-items">
+      <li><span class="tag">GATE</span> Auth guard on connect</li>
+      <li><span class="tag">GATE</span> Permission check per update</li>
+      <li><span class="tag">GATE</span> Applies update to Yjs (server)</li>
+      <li><span class="tag">GATE</span> Broadcasts to room</li>
+      <li><span class="tag">GATE</span> Presence events</li>
+      <li><span class="tag">GATE</span> Notification push</li>
+    </ul>
+  </div>
+
+  <div class="box theme-blue">
+    <div class="box-title">
+      <div class="icon">🌐</div>
+      REST Controllers
+    </div>
+    <ul class="box-items">
+      <li><span class="tag">AUTH</span> Register / Login / Refresh</li>
+      <li><span class="tag">AUTH</span> Logout (Redis blacklist)</li>
+      <li><span class="tag">DOCS</span> Create / List / Delete docs</li>
+      <li><span class="tag">SHARE</span> Generate / Revoke link</li>
+      <li><span class="tag">SHARE</span> Grant by email</li>
+      <li><span class="tag">PERM</span> Update permissions</li>
+    </ul>
+  </div>
+
+  <div class="box theme-violet">
+    <div class="box-title">
+      <div class="icon">🔀</div>
+      Yjs (Server)
+    </div>
+    <ul class="box-items">
+      <li><span class="tag">CRDT</span> One instance per open doc</li>
+      <li><span class="tag">CRDT</span> In-memory authoritative state</li>
+      <li><span class="tag">CRDT</span> Snapshot to Postgres on interval</li>
+      <li><span class="tag">CRDT</span> Loads snapshot on startup</li>
+    </ul>
+  </div>
+
+  <!-- ARROWS DOWN -->
+  <div class="arrows-row">
+    <div class="arrow-group">
+      <div class="arrow-label">Reads/writes snapshots</div>
+      <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+    </div>
+    <div class="arrow-group">
+      <div class="arrow-label">Prisma ORM queries</div>
+      <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+    </div>
+    <div class="arrow-group">
+      <div class="arrow-label">Token ops</div>
+      <div class="arrow"><div class="arrow-line"></div><div class="arrow-head"></div></div>
+    </div>
+  </div>
+
+  <!-- INFRA LAYER -->
+  <div class="section-header">③ Infrastructure Layer</div>
+
+  <div class="box theme-emerald">
+    <div class="box-title">
+      <div class="icon">🐘</div>
+      PostgreSQL (Supabase)
+    </div>
+    <ul class="box-items">
+      <li><span class="tag">TABLE</span> users</li>
+      <li><span class="tag">TABLE</span> documents</li>
+      <li><span class="tag">TABLE</span> permissions</li>
+      <li><span class="tag">TABLE</span> share_tokens</li>
+      <li><span class="tag">TABLE</span> yjs_snapshots (bytea)</li>
+      <li><span class="tag">TABLE</span> notifications</li>
+    </ul>
+  </div>
+
+  <div class="box theme-rose">
+    <div class="box-title">
+      <div class="icon">⚡</div>
+      Redis (Redis Cloud)
+    </div>
+    <ul class="box-items">
+      <li><span class="tag">AUTH</span> JWT blacklist (revoked tokens)</li>
+      <li><span class="tag">AUTH</span> Refresh token store</li>
+      <li><span class="tag">CACHE</span> Future: doc metadata cache</li>
+    </ul>
+  </div>
+
+  <div class="box theme-amber">
+    <div class="box-title">
+      <div class="icon">☁️</div>
+      Cloudinary
+    </div>
+    <ul class="box-items">
+      <li><span class="tag">CDN</span> Image upload endpoint</li>
+      <li><span class="tag">CDN</span> Returns hosted image URL</li>
+      <li><span class="tag">CDN</span> URL stored in Yjs doc</li>
+    </ul>
+  </div>
+
+  <!-- LIVE EDIT FLOW -->
+  <div class="flow-section">
+    <div class="flow-title">⚡ Live Edit Flow — What happens when User A types a character</div>
+    <div class="flow-steps">
+
+      <div class="flow-step">
+        <div class="step-bubble">✏️</div>
+        <div class="step-num">STEP 1</div>
+        <div class="step-label">User types</div>
+        <div class="step-sub">TipTap detects keystroke, updates local state</div>
+      </div>
+
+      <div class="flow-arrow">›</div>
+
+      <div class="flow-step">
+        <div class="step-bubble">🔀</div>
+        <div class="step-num">STEP 2</div>
+        <div class="step-label">Yjs encodes</div>
+        <div class="step-sub">Generates a binary update (compact diff)</div>
+      </div>
+
+      <div class="flow-arrow">›</div>
+
+      <div class="flow-step">
+        <div class="step-bubble">🔌</div>
+        <div class="step-num">STEP 3</div>
+        <div class="step-label">Socket emits</div>
+        <div class="step-sub">Client emits doc:update event with binary payload</div>
+      </div>
+
+      <div class="flow-arrow">›</div>
+
+      <div class="flow-step">
+        <div class="step-bubble">⚡</div>
+        <div class="step-num">STEP 4</div>
+        <div class="step-label">Gateway checks</div>
+        <div class="step-sub">Verifies JWT + permission. Rejects if unauthorized</div>
+      </div>
+
+      <div class="flow-arrow">›</div>
+
+      <div class="flow-step">
+        <div class="step-bubble">🔀</div>
+        <div class="step-num">STEP 5</div>
+        <div class="step-label">Yjs merges</div>
+        <div class="step-sub">Server Yjs instance applies update, resolves conflicts</div>
+      </div>
+
+      <div class="flow-arrow">›</div>
+
+      <div class="flow-step">
+        <div class="step-bubble">📡</div>
+        <div class="step-num">STEP 6</div>
+        <div class="step-label">Broadcasts</div>
+        <div class="step-sub">Emits to all other clients in the doc room</div>
+      </div>
+
+      <div class="flow-arrow">›</div>
+
+      <div class="flow-step">
+        <div class="step-bubble">👀</div>
+        <div class="step-num">STEP 7</div>
+        <div class="step-label">Others see it</div>
+        <div class="step-sub">Each client's Yjs applies update, TipTap re-renders</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#c9ced6"></div>
+      Angular / Frontend
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#343942"></div>
+      NestJS / Backend
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#343942"></div>
+      Yjs / CRDT
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#343942"></div>
+      PostgreSQL
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#343942"></div>
+      Redis
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#343942"></div>
+      Cloudinary
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
