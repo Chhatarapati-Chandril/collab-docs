@@ -1,9 +1,24 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { DocsModule } from './docs/docs.module';
+import { CollabModule } from './collab/collab.module';
+import { SharingModule } from './sharing/sharing.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
-  imports: [],
+  imports: [
+    AuthModule,
+    UsersModule,
+    DocsModule,
+    CollabModule,
+    SharingModule,
+    NotificationsModule,
+    StorageModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
