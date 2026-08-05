@@ -8,18 +8,25 @@ import { CollabModule } from './collab/collab.module';
 import { SharingModule } from './sharing/sharing.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { StorageModule } from './storage/storage.module';
+import { ConfigModule } from '@nestjs/config/dist/config.module';
+import { MyLoggerModule } from './my-logger/my-logger.module';
 
 @Module({
-  imports: [
-    AuthModule,
-    UsersModule,
-    DocsModule,
-    CollabModule,
-    SharingModule,
-    NotificationsModule,
-    StorageModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+    imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+            expandVariables: true,
+        }),
+        AuthModule,
+        UsersModule,
+        DocsModule,
+        CollabModule,
+        SharingModule,
+        NotificationsModule,
+        StorageModule,
+        MyLoggerModule,
+    ],
+    controllers: [AppController],
+    providers: [AppService],
 })
 export class AppModule {}

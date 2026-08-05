@@ -3,7 +3,7 @@ import { StorageController } from './storage.controller';
 import { StorageService } from './storage.service';
 
 @Module({
-  controllers: [StorageController],
-  providers: [StorageService]
+    controllers: [StorageController],
+    providers: [StorageService],
 })
 export class StorageModule {}

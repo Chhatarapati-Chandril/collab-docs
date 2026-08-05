@@ -1,0 +1,144 @@
+generator client {
+    provider = "prisma-client"
+    output   = "../generated/prisma"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+// enums
+
+enum Permission {
+    OWNER
+    EDITOR
+    VIEWER
+}
+
+enum NotificationType {
+    ACCESS_REQUEST
+    PERMISSION_CHANGED
+    DOC_DELETED
+}
+
+// users
+
+model User {
+    id          String   @id @default(uuid())
+    email       String   @unique
+    displayName String
+    password    String
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    // relations
+    ownedDocs             Document[]      @relation("OwnedDocs")
+    permissions           DocPermission[]
+    shareTokens           ShareToken[]
+    sentNotifications     Notification[]  @relation("SentNotifications")
+    receivedNotifications Notification[]  @relation("ReceivedNotifications")
+    refreshTokens         RefreshToken[]
+
+    @@map("users")
+}
+
+// documents
+
+model Document {
+    id          String   @id @default(uuid())
+    title       String   @default("Untitled Document")
+    ownerId     String
+    isAnonymous Boolean  @default(false)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    // Yjs snapshot stored as binary
+    yjsSnapshot       Bytes?
+    snapshotUpdatedAt DateTime?
+
+    // relations
+    owner         User            @relation("OwnedDocs", fields: [ownerId], references: [id], onDelete: Cascade)
+    permissions   DocPermission[]
+    shareTokens   ShareToken[]
+    notifications Notification[]
+
+    @@index([ownerId])           // "give me all docs owned by this user" — used constantly
+    @@index([updatedAt])         // "sort by recently updated" — used on home page
+    @@map("documents")
+}
+
+// permissions
+
+model DocPermission {
+    id         String     @id @default(uuid())
+    docId      String
+    userId     String
+    permission Permission
+    createdAt  DateTime   @default(now())
+    updatedAt  DateTime   @updatedAt
+
+    // relations
+    document Document @relation(fields: [docId], references: [id], onDelete: Cascade)
+    user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    // one permission record per user per doc
+    @@unique([docId, userId])
+    @@index([userId])            // "give me all docs this user has access to" — used constantly
+    @@map("doc_permissions")
+}
+
+// share tokens
+
+model ShareToken {
+    id         String     @id @default(uuid())
+    token      String     @unique @default(uuid())
+    docId      String
+    createdBy  String
+    permission Permission // VIEW or EDIT that this link grants
+    expiresAt  DateTime? // null = never expires
+    createdAt  DateTime   @default(now())
+
+    // relations
+    document Document @relation(fields: [docId], references: [id], onDelete: Cascade)
+    creator  User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+    @@map("share_tokens")
+}
+
+// notifications
+
+model Notification {
+    id         String           @id @default(uuid())
+    type       NotificationType
+    docId      String
+    fromUserId String // who triggered it
+    toUserId   String // who receives it
+    isRead     Boolean          @default(false)
+    meta       Json? // extra data e.g. { requestedPermission: 'EDITOR' }
+    createdAt  DateTime         @default(now())
+
+    // relations
+    document Document @relation(fields: [docId], references: [id], onDelete: Cascade)
+    fromUser User     @relation("SentNotifications", fields: [fromUserId], references: [id], onDelete: Cascade)
+    toUser   User     @relation("ReceivedNotifications", fields: [toUserId], references: [id], onDelete: Cascade)
+
+    @@index([toUserId, isRead])  // "give me all unread notifications for this user"
+    @@index([docId])             // "give me all notifications for this doc"
+    @@map("notifications")
+}
+
+// refresh tokens
+
+model RefreshToken {
+    id        String   @id @default(uuid())
+    token     String   @unique
+    userId    String
+    expiresAt DateTime
+    createdAt DateTime @default(now())
+
+    // relations
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([userId])            // "give me all refresh tokens for this user" — used on logout
+    @@map("refresh_tokens")
+}
