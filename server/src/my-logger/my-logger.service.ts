@@ -4,6 +4,12 @@ import 'winston-daily-rotate-file';
 
 @Injectable()
 export class MyLoggerService implements LoggerService {
+    private context?: string;
+
+    setContext(context: string) {
+        this.context = context;
+    }
+
     private readonly logger: winston.Logger;
 
     constructor() {
