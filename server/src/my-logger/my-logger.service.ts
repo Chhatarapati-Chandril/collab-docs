@@ -8,25 +8,63 @@ export class MyLoggerService implements LoggerService {
 
     constructor() {
         const isDev = process.env.NODE_ENV !== 'production';
+        const defaultLevel = process.env.LOG_LEVEL || (isDev ? 'debug' : 'info');
+
+        const customColors = {
+            error: 'red',
+            warn: 'yellow',
+            info: 'green',
+            debug: 'blue',
+            verbose: 'cyan',
+        };
+        winston.addColors(customColors);
 
         this.logger = winston.createLogger({
-            level: isDev ? 'debug' : 'warn',
+            level: defaultLevel,
             transports: [
-                // Console — always on, colorized in dev
                 new winston.transports.Console({
                     format: winston.format.combine(
-                        winston.format.timestamp({ format: 'HH:mm:ss' }),
-                        winston.format.colorize(),
-                        winston.format.printf(({ timestamp, level, message, context }) => {
-                            const ts = timestamp as string;
-                            const ctx = context as string | undefined;
-                            const msg = message as string;
-                            return `[${ts}] ${level} ${ctx ? `[${ctx}]` : ''} ${msg}`;
+                        winston.format.timestamp({ format: 'MM/DD/YYYY, hh:mm:ss.SSS A' }),
+                        winston.format.colorize({ level: true }), // Colorize ONLY the log level
+                        winston.format.printf((info) => {
+                            const timestamp =
+                                typeof info.timestamp === 'string' ? info.timestamp : '';
+                            const level = typeof info.level === 'string' ? info.level : '';
+                            const message =
+                                typeof info.message === 'string'
+                                    ? info.message
+                                    : JSON.stringify(info.message);
+
+                            const rawContext = info.context;
+                            const contextStr = rawContext
+                                ? typeof rawContext === 'string'
+                                    ? rawContext
+                                    : JSON.stringify(rawContext)
+                                : '';
+
+                            // Custom ANSI Colors for other parts
+                            const cyan = '\x1b[36m';
+                            const magenta = '\x1b[35m'; // Pink/Magenta for context
+                            const gray = '\x1b[90m';
+                            const reset = '\x1b[0m';
+
+                            const pid = `${cyan}${process.pid}${reset}`;
+                            const ts = `${gray}${timestamp}${reset}`;
+                            const context = contextStr ? `${magenta}[${contextStr}]${reset} ` : '';
+
+                            const rawStack = info.stack;
+                            const stackStr = rawStack
+                                ? typeof rawStack === 'string'
+                                    ? rawStack
+                                    : JSON.stringify(rawStack)
+                                : '';
+                            const stack = stackStr ? `\n\x1b[31m${stackStr}${reset}` : '';
+
+                            return `[Nest] ${pid}  - ${ts}     ${level} ${context}${message}${stack}`;
                         }),
                     ),
                 }),
 
-                // General log file — rotates daily, keeps 14 days
                 new winston.transports.DailyRotateFile({
                     filename: 'logs/app-%DATE%.log',
                     datePattern: 'YYYY-MM-DD',
@@ -37,7 +75,6 @@ export class MyLoggerService implements LoggerService {
                     ),
                 }),
 
-                // Error-only log file — rotates daily, keeps 30 days
                 new winston.transports.DailyRotateFile({
                     filename: 'logs/error-%DATE%.log',
                     datePattern: 'YYYY-MM-DD',
@@ -52,23 +89,31 @@ export class MyLoggerService implements LoggerService {
         });
     }
 
-    log(message: any, context?: string) {
-        this.logger.info(message as string, { context });
+    private formatMessage(message: unknown): string {
+        return typeof message === 'string' ? message : JSON.stringify(message);
     }
 
-    error(message: any, trace?: string, context?: string) {
-        this.logger.error(message as string, { trace, context });
+    log(message: unknown, context?: string) {
+        this.logger.info(this.formatMessage(message), { context });
     }
 
-    warn(message: any, context?: string) {
-        this.logger.warn(message as string, { context });
+    error(message: unknown, trace?: string, context?: string) {
+        if (message instanceof Error) {
+            this.logger.error(message.message, { stack: message.stack, context: trace || context });
+        } else {
+            this.logger.error(this.formatMessage(message), { stack: trace, context });
+        }
     }
 
-    debug(message: any, context?: string) {
-        this.logger.debug(message as string, { context });
+    warn(message: unknown, context?: string) {
+        this.logger.warn(this.formatMessage(message), { context });
     }
 
-    verbose(message: any, context?: string) {
-        this.logger.verbose(message as string, { context });
+    debug(message: unknown, context?: string) {
+        this.logger.debug(this.formatMessage(message), { context });
+    }
+
+    verbose(message: unknown, context?: string) {
+        this.logger.verbose(this.formatMessage(message), { context });
     }
 }

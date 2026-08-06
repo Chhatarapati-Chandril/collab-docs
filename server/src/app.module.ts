@@ -10,6 +10,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { StorageModule } from './storage/storage.module';
 import { ConfigModule } from '@nestjs/config/dist/config.module';
 import { MyLoggerModule } from './my-logger/my-logger.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
     imports: [
@@ -17,6 +18,8 @@ import { MyLoggerModule } from './my-logger/my-logger.module';
             isGlobal: true,
             expandVariables: true,
         }),
+        MyLoggerModule,
+        PrismaModule,
         AuthModule,
         UsersModule,
         DocsModule,
@@ -24,7 +27,6 @@ import { MyLoggerModule } from './my-logger/my-logger.module';
         SharingModule,
         NotificationsModule,
         StorageModule,
-        MyLoggerModule,
     ],
     controllers: [AppController],
     providers: [AppService],
