@@ -2,6 +2,7 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MyLoggerService } from './my-logger/my-logger.service';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
     const logger = new MyLoggerService();
@@ -12,6 +13,15 @@ async function bootstrap() {
     });
 
     app.enableShutdownHooks();
+
+    // Enable global validation pipe for DTOs
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true, // Strips out unexpected properties not in the DTO
+            forbidNonWhitelisted: true, // Throws an error if extra properties are sent
+            transform: true, // Automatically transforms payloads to DTO class instances
+        }),
+    );
 
     // Register the Global Exception Filter with your custom logger
     const httpAdapterHost = app.get(HttpAdapterHost);
