@@ -11,6 +11,7 @@ import { StorageModule } from './storage/storage.module';
 import { ConfigModule } from '@nestjs/config/dist/config.module';
 import { MyLoggerModule } from './my-logger/my-logger.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { HashService } from './common/hash/hash.service';
 
 @Module({
     imports: [
@@ -29,6 +30,6 @@ import { PrismaModule } from './prisma/prisma.module';
         StorageModule,
     ],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [AppService, HashService],
 })
 export class AppModule {}

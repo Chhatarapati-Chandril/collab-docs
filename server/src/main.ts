@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { MyLoggerService } from './my-logger/my-logger.service';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { ValidationPipe } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
     const logger = new MyLoggerService();
@@ -12,6 +13,10 @@ async function bootstrap() {
         logger,
     });
 
+    app.use(cookieParser());
+
+    app.setGlobalPrefix('api/v1');
+
     app.enableShutdownHooks();
 
     // Enable global validation pipe for DTOs
@@ -20,6 +25,7 @@ async function bootstrap() {
             whitelist: true, // Strips out unexpected properties not in the DTO
             forbidNonWhitelisted: true, // Throws an error if extra properties are sent
             transform: true, // Automatically transforms payloads to DTO class instances
+            stopAtFirstError: true,
         }),
     );
 
@@ -27,7 +33,7 @@ async function bootstrap() {
     const httpAdapterHost = app.get(HttpAdapterHost);
     app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost, logger));
 
-    const port = process.env.PORT ?? 3000;
+    const port = Number(process.env.PORT) || 3000;
     await app.listen(port);
 
     logger.log(`Application is running on port ${port}`, 'Bootstrap');
