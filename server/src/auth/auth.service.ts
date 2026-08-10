@@ -106,4 +106,121 @@ export class AuthService {
             throw new InternalServerErrorException('Failed to log in user');
         }
     }
+
+    async refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+        try {
+            const payload = this.tokenService.verifyRefreshToken(refreshToken);
+
+            const storedTokens = await this.prisma.refreshToken.findMany({
+                where: { userId: payload.sub },
+            });
+
+            let storedTokenId: string | null = null;
+
+            for (const storedToken of storedTokens) {
+                const isMatch = await this.hashService.compare(refreshToken, storedToken.token);
+                if (isMatch) {
+                    if (storedToken.expiresAt <= new Date()) {
+                        await this.prisma.refreshToken.delete({
+                            where: { id: storedToken.id },
+                        });
+                        throw new UnauthorizedException('Refresh token has expired');
+                    }
+                    storedTokenId = storedToken.id;
+                    break;
+                }
+            }
+            if (!storedTokenId) {
+                throw new UnauthorizedException('Invalid refresh token');
+            }
+
+            const user = await this.prisma.user.findUnique({
+                where: { id: payload.sub },
+            });
+
+            if (!user) {
+                throw new UnauthorizedException('User no longer exists');
+            }
+
+            const newPayload = {
+                sub: user.id,
+                email: user.email,
+            };
+
+            const newAccessToken = this.tokenService.generateAccessToken(newPayload);
+            const newRefreshToken = this.tokenService.generateRefreshToken(newPayload);
+
+            const refreshTokenExpiresInDays = Number(
+                this.configService.getOrThrow<string>('JWT_REFRESH_TOKEN_EXPIRES_IN_DAYS'),
+            );
+
+            if (!Number.isInteger(refreshTokenExpiresInDays) || refreshTokenExpiresInDays <= 0) {
+                throw new InternalServerErrorException(
+                    'Invalid refresh token expiration configuration',
+                );
+            }
+
+            const expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + refreshTokenExpiresInDays);
+
+            const hashedRefreshToken = await this.hashService.hash(newRefreshToken);
+
+            await this.prisma.$transaction([
+                this.prisma.refreshToken.delete({
+                    where: {
+                        id: storedTokenId,
+                    },
+                }),
+                this.prisma.refreshToken.create({
+                    data: {
+                        token: hashedRefreshToken,
+                        userId: user.id,
+                        expiresAt,
+                    },
+                }),
+            ]);
+
+            return {
+                accessToken: newAccessToken,
+                refreshToken: newRefreshToken,
+            };
+        } catch (error) {
+            if (error instanceof HttpException) {
+                throw error;
+            }
+            throw new InternalServerErrorException('Failed to refresh authentication');
+        }
+    }
+
+    async logout(refreshToken: string): Promise<void> {
+        try {
+            const payload = this.tokenService.verifyRefreshToken(refreshToken);
+
+            const storedTokens = await this.prisma.refreshToken.findMany({
+                where: {
+                    userId: payload.sub,
+                },
+            });
+
+            for (const storedToken of storedTokens) {
+                const isMatch = await this.hashService.compare(refreshToken, storedToken.token);
+
+                if (isMatch) {
+                    await this.prisma.refreshToken.delete({
+                        where: {
+                            id: storedToken.id,
+                        },
+                    });
+
+                    return;
+                }
+            }
+        } catch (error) {
+            // Logout should still succeed from the client's perspective.
+            // The cookie will be cleared by the controller.
+            if (!(error instanceof UnauthorizedException)) {
+                console.error('LOGOUT ERROR:', error);
+            }
+        }
+    }
 }

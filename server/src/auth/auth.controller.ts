@@ -1,5 +1,14 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Res } from '@nestjs/common';
-import type { Response } from 'express';
+import {
+    Body,
+    Controller,
+    HttpCode,
+    HttpStatus,
+    Post,
+    Req,
+    Res,
+    UnauthorizedException,
+} from '@nestjs/common';
+import type { Request, Response } from 'express';
 
 import { AuthService } from './auth.service';
 
@@ -56,6 +65,63 @@ export class AuthController {
                 accessToken: result.accessToken,
                 user: result.user,
             },
+        });
+    }
+
+    @Post('refresh')
+    @HttpCode(HttpStatus.OK)
+    async refresh(
+        @Req() request: Request,
+        @Res({ passthrough: true }) response: Response,
+    ): Promise<ApiResponse<{ accessToken: string }>> {
+        const refreshToken = request.cookies.refreshToken as string | undefined;
+        if (!refreshToken) {
+            throw new UnauthorizedException('Refresh token is missing');
+        }
+
+        const result = await this.authService.refresh(refreshToken);
+
+        const refreshTokenExpiresInDays = Number(
+            this.configService.getOrThrow<string>('JWT_REFRESH_TOKEN_EXPIRES_IN_DAYS'),
+        );
+
+        response.cookie('refreshToken', result.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: refreshTokenExpiresInDays * 24 * 60 * 60 * 1000,
+        });
+
+        return new ApiResponse({
+            statusCode: HttpStatus.OK,
+            message: 'Token refreshed successfully',
+            data: {
+                accessToken: result.accessToken,
+            },
+        });
+    }
+
+    @Post('logout')
+    @HttpCode(HttpStatus.OK)
+    async logout(
+        @Req() request: Request,
+        @Res({ passthrough: true }) response: Response,
+    ): Promise<ApiResponse<null>> {
+        const refreshToken = request.cookies.refreshToken as string | undefined;
+        if (refreshToken) {
+            await this.authService.logout(refreshToken);
+        }
+
+        response.clearCookie('refreshToken', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+        });
+
+        return new ApiResponse({
+            statusCode: HttpStatus.OK,
+            message: 'Logged out successfully',
+            data: null,
         });
     }
 }
