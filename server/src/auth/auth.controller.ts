@@ -19,6 +19,8 @@ import { ApiResponse } from '../common/dto/api-response.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
 import { RegisterResponseDto } from './dto/register-response.dto';
 import { ConfigService } from '@nestjs/config';
+import { Serialize } from '../common/intercepters/serialize.interceptor';
+import { RefreshResponseDto } from './dto/refresh-response.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -29,6 +31,7 @@ export class AuthController {
 
     @Post('register')
     @HttpCode(HttpStatus.CREATED)
+    @Serialize(RegisterResponseDto)
     async register(@Body() dto: RegisterDto): Promise<ApiResponse<RegisterResponseDto>> {
         const result = await this.authService.register(dto);
 
@@ -41,6 +44,7 @@ export class AuthController {
 
     @Post('login')
     @HttpCode(HttpStatus.OK)
+    @Serialize(LoginResponseDto)
     async login(
         @Body() dto: LoginDto,
         @Res({ passthrough: true }) response: Response,
@@ -70,10 +74,11 @@ export class AuthController {
 
     @Post('refresh')
     @HttpCode(HttpStatus.OK)
+    @Serialize(RefreshResponseDto)
     async refresh(
         @Req() request: Request,
         @Res({ passthrough: true }) response: Response,
-    ): Promise<ApiResponse<{ accessToken: string }>> {
+    ): Promise<ApiResponse<RefreshResponseDto>> {
         const refreshToken = request.cookies.refreshToken as string | undefined;
         if (!refreshToken) {
             throw new UnauthorizedException('Refresh token is missing');
@@ -95,9 +100,7 @@ export class AuthController {
         return new ApiResponse({
             statusCode: HttpStatus.OK,
             message: 'Token refreshed successfully',
-            data: {
-                accessToken: result.accessToken,
-            },
+            data: { accessToken: result.accessToken },
         });
     }
 

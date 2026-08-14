@@ -6,11 +6,12 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { TokenService } from './token.service';
 import { HashService } from '../common/hash/hash.service';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
     imports: [ConfigModule, JwtModule.register({})],
     controllers: [AuthController],
-    providers: [AuthService, TokenService, HashService],
+    providers: [AuthService, TokenService, HashService, JwtStrategy],
     exports: [AuthService, TokenService],
 })
 export class AuthModule {}

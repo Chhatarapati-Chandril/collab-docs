@@ -1,6 +1,11 @@
-import { UserWithoutPassword } from '../types/user-without-password.type';
+import { Expose, Type } from 'class-transformer';
+import { UserResponseDto } from './user-response.dto';
 
 export class LoginResponseDto {
+    @Expose()
     accessToken!: string;
-    user!: UserWithoutPassword;
+
+    @Expose()
+    @Type(() => UserResponseDto)
+    user!: UserResponseDto;
 }
