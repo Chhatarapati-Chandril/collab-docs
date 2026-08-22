@@ -1,11 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-
-export interface JwtPayload {
-    sub: string;
-    email: string;
-}
+import { JwtPayload } from './types/jwt-payload.type';
 
 @Injectable()
 export class TokenService {

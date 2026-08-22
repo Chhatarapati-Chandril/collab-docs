@@ -33,7 +33,6 @@ model User {
     // relations
     ownedDocs             Document[]      @relation("OwnedDocs")
     permissions           DocPermission[]
-    shareTokens           ShareToken[]
     sentNotifications     Notification[]  @relation("SentNotifications")
     receivedNotifications Notification[]  @relation("ReceivedNotifications")
     refreshTokens         RefreshToken[]
@@ -51,6 +50,8 @@ model Document {
     createdAt   DateTime @default(now())
     updatedAt   DateTime @updatedAt
 
+    publicAccess Permission?
+
     // Yjs snapshot stored as binary
     yjsSnapshot       Bytes?
     snapshotUpdatedAt DateTime?
@@ -58,7 +59,6 @@ model Document {
     // relations
     owner         User            @relation("OwnedDocs", fields: [ownerId], references: [id], onDelete: Cascade)
     permissions   DocPermission[]
-    shareTokens   ShareToken[]
     notifications Notification[]
 
     @@index([ownerId])           // "give me all docs owned by this user" — used constantly
@@ -84,24 +84,6 @@ model DocPermission {
     @@unique([docId, userId])
     @@index([userId])            // "give me all docs this user has access to" — used constantly
     @@map("doc_permissions")
-}
-
-// share tokens
-
-model ShareToken {
-    id         String     @id @default(uuid())
-    token      String     @unique @default(uuid())
-    docId      String
-    createdBy  String
-    permission Permission // VIEW or EDIT that this link grants
-    expiresAt  DateTime? // null = never expires
-    createdAt  DateTime   @default(now())
-
-    // relations
-    document Document @relation(fields: [docId], references: [id], onDelete: Cascade)
-    creator  User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
-
-    @@map("share_tokens")
 }
 
 // notifications

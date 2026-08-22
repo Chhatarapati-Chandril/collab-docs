@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/commo
 import { PrismaClient } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
@@ -14,7 +15,8 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
             throw new Error('DATABASE_URL environment variable is missing!');
         }
 
-        const adapter = new PrismaPg({ connectionString: databaseUrl });
+        const pool = new Pool({ connectionString: databaseUrl });
+        const adapter = new PrismaPg(pool);
 
         super({
             adapter,

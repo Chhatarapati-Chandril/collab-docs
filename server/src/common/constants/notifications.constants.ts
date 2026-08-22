@@ -1,0 +1,3 @@
+export const NOTIFICATION_CONSTANTS = {
+    NOTIFICATION_RETENTION_DAYS: 7,
+} as const;

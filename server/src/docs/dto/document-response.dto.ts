@@ -1,3 +1,4 @@
+import { Permission } from '@prisma/client';
 import { Expose } from 'class-transformer';
 
 export class DocumentResponseDto {
@@ -12,6 +13,9 @@ export class DocumentResponseDto {
 
     @Expose()
     isAnonymous!: boolean;
+
+    @Expose()
+    publicAccess!: Permission | null;
 
     @Expose()
     createdAt!: Date;

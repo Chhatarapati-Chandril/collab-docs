@@ -36,7 +36,10 @@ export class DocsService {
             }),
         ]);
 
-        const sharedWithMe = sharedPermissions.map(({ document }) => document);
+        const sharedWithMe = sharedPermissions.map(({ document, permission }) => ({
+            ...document,
+            permission,
+        }));
 
         return {
             myDocuments: {

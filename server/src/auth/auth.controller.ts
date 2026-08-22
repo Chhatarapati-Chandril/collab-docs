@@ -21,7 +21,9 @@ import { RegisterResponseDto } from './dto/register-response.dto';
 import { ConfigService } from '@nestjs/config';
 import { Serialize } from '../common/intercepters/serialize.interceptor';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
     constructor(

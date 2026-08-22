@@ -18,7 +18,7 @@ import { ApiResponse } from '../common/dto/api-response.dto';
 import { GetDocumentsResponseDto } from './dto/get-documents-response.dto';
 import { DocumentResponseDto } from './dto/document-response.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import type { CurrentUserPayload } from '../auth/types/jwt-payload.type';
+import type { CurrentUserPayload } from '../auth/types/current-user-payload.type';
 import { Serialize } from '../common/intercepters/serialize.interceptor';
 
 @UseGuards(JwtAuthGuard)
