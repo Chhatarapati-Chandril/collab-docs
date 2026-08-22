@@ -147,7 +147,7 @@ export class CollabService {
         } else if (doc.permissions.length > 0) {
             role = doc.permissions[0].permission;
         } else if (doc.publicAccess) {
-            role = doc.publicAccess as Permission;
+            role = doc.publicAccess;
         }
 
         if (!role) {
