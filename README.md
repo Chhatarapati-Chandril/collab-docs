@@ -93,9 +93,9 @@ npm start
 collab-docs/
 ├── <a href="./client/">client/</a>         # Angular frontend
 ├── <a href="./server/">server/</a>         # NestJS backend
-├── <a href="./wiki/">wiki/</a>             # Project architechture
+├── <a href="./wiki/">wiki/</a>           # Project architechture
 ├── <a href="./.husky/">.husky/</a>         # Git hooks
-├── <a href="./.vscode/">.vscode/</a>       # VS Code configuration
+├── <a href="./.vscode/">.vscode/</a>        # VS Code configuration
 ├── <a href="./.gitignore">.gitignore</a>
 ├── <a href="./package.json">package.json</a>
 ├── <a href="./package-lock.json">package-lock.json</a>
