@@ -125,9 +125,7 @@ export class CollabGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }, COLLAB_CONSTANTS.DISCONNECT_GRACE_PERIOD_MS);
     }
 
-    /**
-     * Instantly cuts off targeted user's socket connection upon permission revocation.
-     */
+    // Instantly cuts off targeted user's socket connection upon permission revocation.
     public async revokeDocumentAccess(userId: string, docId: string): Promise<void> {
         const sockets = (await this.server.in(docId).fetchSockets()) as unknown as CollabSocket[];
 
@@ -146,6 +144,29 @@ export class CollabGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 this.logger.log(`Forcefully disconnected user ${userId} from document ${docId}`);
             }
         }
+    }
+
+    // Broadcasts a deletion event and disconnects all users in a document room.
+    public async handleDocumentDeleted(docId: string): Promise<void> {
+        this.server.in(docId).emit('document-deleted', {
+            message: 'This document has been deleted by the owner.',
+        });
+
+        const sockets = (await this.server.in(docId).fetchSockets()) as unknown as CollabSocket[];
+
+        for (const socket of sockets) {
+            this.logger.log(`Disconnecting socket ${socket.id}, user ${socket.data?.userId}`);
+
+            socket.emit('document-deleted', {
+                message: 'This document has been deleted by the owner.',
+            });
+
+            socket.disconnect(true);
+        }
+
+        await this.collabService.cleanupDoc(docId);
+
+        this.logger.log(`Document ${docId} deleted: All users disconnected and memory cleared.`);
     }
 
     @SubscribeMessage('update')

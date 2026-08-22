@@ -7,10 +7,14 @@ import { DocumentResponseDto } from './dto/document-response.dto';
 import { GetDocumentsResponseDto } from './dto/get-documents-response.dto';
 import { DOC_CONSTANTS } from '../common/constants/doc.constants';
 import { PERMISSION_LEVELS, PERMISSION_MESSAGES } from '../common/constants/permission.constants';
+import { CollabGateway } from '../collab/collab.gateway';
 
 @Injectable()
 export class DocsService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly collabGateway: CollabGateway,
+    ) {}
 
     async createDocument(userId: string, dto: CreateDocumentDto): Promise<DocumentResponseDto> {
         const title = dto.title?.trim() || DOC_CONSTANTS.DEFAULT_TITLE;
@@ -76,8 +80,9 @@ export class DocsService {
 
     async deleteDocument(userId: string, docId: string): Promise<void> {
         const document = await this.findDocument(docId);
-
         await this.verifyPermission(userId, document, Permission.OWNER);
+
+        await this.collabGateway.handleDocumentDeleted(docId);
 
         await this.prisma.document.delete({
             where: { id: docId },
@@ -86,7 +91,6 @@ export class DocsService {
 
     async copyDocument(userId: string, docId: string): Promise<DocumentResponseDto> {
         const document = await this.findDocument(docId);
-
         await this.verifyPermission(userId, document, Permission.VIEWER);
 
         return this.prisma.document.create({
