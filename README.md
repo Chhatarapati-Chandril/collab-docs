@@ -32,7 +32,7 @@ Most "Google Docs clone" projects stop at CRUD with a rich-text field. The actua
 ```
 ┌────────────┐        Yjs updates          ┌────────────┐
 │  Angular   │ ───────────────────────────▶│   NestJS   │
-│  TipTap    │◀─────────────────────────── │   Gateway  │
+│  Quill     │◀─────────────────────────── │   Gateway  │
 │  Yjs client│       Socket.IO room        │  (Yjs doc) │
 └────────────┘                             └──────┬─────┘
                                                   │ permission check
