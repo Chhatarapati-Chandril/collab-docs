@@ -70,6 +70,7 @@ Each open document has one authoritative Yjs instance in server memory. Clients 
 ```bash
 git clone https://github.com/Chhatarapati-Chandril/collab-docs.git
 cd collab-docs
+npm install
 ```
 
 **Backend**
