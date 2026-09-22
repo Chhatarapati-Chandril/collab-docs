@@ -1,1 +1,58 @@
-<p>login works!</p>
+<div class="auth-wrapper">
+    <mat-card class="auth-card">
+        <mat-card-header class="auth-title">
+            <mat-card-title>Sign in to CollabDocs</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Email</mat-label>
+                    <input matInput formControlName="email" type="email" autocomplete="email" />
+                    @if (loginForm.controls.email.hasError('required')) {
+                        <mat-error>Email is required</mat-error>
+                    }
+                    @if (loginForm.controls.email.hasError('email')) {
+                        <mat-error>Enter a valid email</mat-error>
+                    }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Password</mat-label>
+                    <input
+                        matInput
+                        formControlName="password"
+                        type="password"
+                        autocomplete="current-password"
+                    />
+                    @if (loginForm.controls.password.hasError('required')) {
+                        <mat-error>Password is required</mat-error>
+                    }
+                </mat-form-field>
+
+                @if (errorMessage()) {
+                    <p class="error-text">{{ errorMessage() }}</p>
+                }
+
+                <button
+                    mat-flat-button
+                    color="primary"
+                    class="full-width"
+                    type="submit"
+                    [disabled]="loginForm.invalid || isLoading()"
+                >
+                    @if (isLoading()) {
+                        <mat-progress-spinner diameter="20" mode="indeterminate" />
+                    } @else {
+                        Sign in
+                    }
+                </button>
+            </form>
+        </mat-card-content>
+
+        <mat-card-actions align="end">
+            <span>Don't have an account?</span>
+            <a mat-button routerLink="/register">Register</a>
+        </mat-card-actions>
+    </mat-card>
+</div>
