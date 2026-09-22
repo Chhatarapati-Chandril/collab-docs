@@ -17,9 +17,13 @@ export class NotificationsService {
             where: {
                 toUserId: userId,
                 OR: [
-                    { isRead: false }, // Show all unread no matter how old
-                    { isRead: true, createdAt: { gte: notificationCutoffDate } }, // Only show read from the last n days
+                    { isRead: false },
+                    { isRead: true, createdAt: { gte: notificationCutoffDate } },
                 ],
+            },
+            include: {
+                document: { select: { id: true, title: true } },
+                fromUser: { select: { id: true, displayName: true, email: true } },
             },
             orderBy: { createdAt: 'desc' },
         });
