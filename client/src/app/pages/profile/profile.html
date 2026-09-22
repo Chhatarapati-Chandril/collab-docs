@@ -1,1 +1,57 @@
-<p>profile works!</p>
+<div class="profile-page">
+    <div class="profile-card">
+        @if (user(); as u) {
+            <div class="avatar-header">
+                <div class="large-avatar" [style.background-color]="getColorForUser(u.id)">
+                    {{ getInitial(u.displayName) }}
+                </div>
+            </div>
+
+            <div class="profile-details">
+                <div class="form-group">
+                    <div class="field-label">{{ CONSTANTS.emailLabel }}</div>
+                    <div class="readonly-value">
+                        <mat-icon>email</mat-icon>
+                        <span>{{ u.email }}</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="field-label">{{ CONSTANTS.displayNameLabel }}</div>
+                    <div class="editable-field-container">
+                        @if (!isEditingName()) {
+                            <div
+                                class="inline-edit-display"
+                                (click)="startEditingName()"
+                                (keydown.enter)="startEditingName()"
+                                tabindex="0"
+                                role="button"
+                                matTooltip="Click to edit"
+                            >
+                                <span class="name-text">{{ u.displayName }}</span>
+                                <mat-icon class="edit-icon">edit</mat-icon>
+                            </div>
+                        } @else {
+                            <mat-form-field appearance="outline" class="inline-edit-form-field">
+                                <input
+                                    matInput
+                                    #nameInput
+                                    [formControl]="nameControl"
+                                    (blur)="saveName()"
+                                    (keydown.enter)="saveName()"
+                                    (keydown.escape)="cancelEditingName()"
+                                />
+                                @if (
+                                    nameControl.invalid &&
+                                    (nameControl.dirty || nameControl.touched)
+                                ) {
+                                    <mat-error>{{ getNameErrorMessage() }}</mat-error>
+                                }
+                            </mat-form-field>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
