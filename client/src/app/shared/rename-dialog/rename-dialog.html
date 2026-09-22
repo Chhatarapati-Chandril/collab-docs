@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>Rename document</h2>
+<mat-dialog-content>
+    <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Title</mat-label>
+        <input matInput [(ngModel)]="title" (keyup.enter)="onConfirm()" cdkFocusInitial />
+    </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-flat-button color="primary" [disabled]="!title.trim()" (click)="onConfirm()">
+        Save
+    </button>
+</mat-dialog-actions>
