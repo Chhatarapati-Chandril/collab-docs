@@ -1,0 +1,10 @@
+app-splash-screen {
+    transition: opacity 300ms ease-in-out;
+    opacity: 1;
+    pointer-events: auto;
+
+    &.fade-out {
+        opacity: 0;
+        pointer-events: none;
+    }
+}

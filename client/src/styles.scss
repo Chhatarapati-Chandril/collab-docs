@@ -37,3 +37,16 @@ body {
     height: 100%;
 }
 /* You can add global styles to this file, and also import other style files */
+
+.error-snackbar {
+    --mdc-snackbar-container-color: var(--mat-sys-error);
+    --mdc-snackbar-supporting-text-color: var(--mat-sys-on-error);
+    --mat-snack-bar-button-color: var(--mat-sys-on-error);
+}
+
+.success-snackbar {
+    /* M3 lacks a native semantic 'success' token, so using a standard material green */
+    --mdc-snackbar-container-color: #1e8e3e;
+    --mdc-snackbar-supporting-text-color: #ffffff;
+    --mat-snack-bar-button-color: #ffffff;
+}
