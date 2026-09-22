@@ -217,10 +217,21 @@ export class ShareService {
             });
         }
 
-        // 3. Mark the original request as read so the NotificationsService stops returning it as unread
+        // 3. Mark the original request as read and save the resolution state
+        const currentMeta = notification.meta ? (notification.meta as Record<string, any>) : {};
         return this.prisma.notification.update({
             where: { id: notificationId },
-            data: { isRead: true },
+            data: {
+                isRead: true,
+                meta: {
+                    ...currentMeta,
+                    resolvedAction: dto.action,
+                    resolvedPermission:
+                        dto.action === SHARE_CONSTANTS.ACCESS_REQUEST_ACTIONS.APPROVE
+                            ? dto.grantedPermission
+                            : undefined,
+                },
+            },
         });
     }
 
@@ -236,6 +247,29 @@ export class ShareService {
             where: { id: docId },
             data: { publicAccess: access },
             select: { id: true, title: true, publicAccess: true },
+        });
+    }
+
+    async getDocumentUsers(userId: string, docId: string) {
+        const document = await this.prisma.document.findUnique({
+            where: { id: docId },
+            select: { ownerId: true },
+        });
+
+        if (!document) {
+            throw new NotFoundException('Document not found');
+        }
+
+        if (document.ownerId !== userId) {
+            throw new ForbiddenException('Only the document owner can view shared users');
+        }
+
+        return this.prisma.docPermission.findMany({
+            where: { docId },
+            include: {
+                user: { select: { id: true, displayName: true, email: true } },
+            },
+            orderBy: { createdAt: 'asc' },
         });
     }
 }
