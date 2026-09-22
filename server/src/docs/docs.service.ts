@@ -31,11 +31,20 @@ export class DocsService {
         const [myDocuments, sharedPermissions] = await Promise.all([
             this.prisma.document.findMany({
                 where: { ownerId: userId },
+                include: {
+                    _count: { select: { permissions: true } },
+                },
                 orderBy: { updatedAt: 'desc' },
             }),
             this.prisma.docPermission.findMany({
                 where: { userId },
-                include: { document: true },
+                include: {
+                    document: {
+                        include: {
+                            owner: { select: { id: true, displayName: true } },
+                        },
+                    },
+                },
                 orderBy: { updatedAt: 'desc' },
             }),
         ]);
@@ -55,6 +64,13 @@ export class DocsService {
                 documents: sharedWithMe,
             },
         };
+    }
+
+    async getDocumentById(userId: string, docId: string): Promise<DocumentResponseDto> {
+        const document = await this.findDocument(docId);
+        await this.verifyPermission(userId, document, Permission.VIEWER);
+
+        return document;
     }
 
     async updateDocument(

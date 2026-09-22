@@ -57,6 +57,21 @@ export class DocsController {
         });
     }
 
+    @Get(':id')
+    @HttpCode(HttpStatus.OK)
+    @Serialize(DocumentResponseDto)
+    async findOne(
+        @CurrentUser() user: CurrentUserPayload,
+        @Param('id') id: string,
+    ): Promise<ApiResponse<DocumentResponseDto>> {
+        const document = await this.docsService.getDocumentById(user.userId, id);
+        return new ApiResponse({
+            statusCode: HttpStatus.OK,
+            message: 'Document fetched successfully',
+            data: document,
+        });
+    }
+
     @Patch(':id')
     @HttpCode(HttpStatus.OK)
     @Serialize(DocumentResponseDto)

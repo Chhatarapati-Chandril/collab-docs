@@ -1,5 +1,6 @@
 import { Permission } from '@prisma/client';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
+import { OwnerSummaryDto } from './owner-summary.dto';
 
 export class DocumentResponseDto {
     @Expose()
@@ -22,4 +23,14 @@ export class DocumentResponseDto {
 
     @Expose()
     updatedAt!: Date;
+
+    @Expose()
+    _count?: { permissions: number };
+
+    @Expose()
+    @Type(() => OwnerSummaryDto)
+    owner?: OwnerSummaryDto;
+
+    @Expose()
+    permission?: Permission;
 }
