@@ -1,1 +1,51 @@
-<p>navbar works!</p>
+<mat-toolbar class="app-toolbar">
+    <span class="brand" routerLink="/home">CollabDocs</span>
+
+    <span class="spacer"></span>
+
+    <div class="toolbar-actions">
+        <button
+            mat-icon-button
+            routerLink="/notifications"
+            matBadge="{{ unreadCount() }}"
+            [matBadgeHidden]="unreadCount() === 0"
+            matBadgeColor="warn"
+        >
+            <mat-icon>notifications</mat-icon>
+        </button>
+
+        <button mat-icon-button [matMenuTriggerFor]="userMenu">
+            <mat-icon>account_circle</mat-icon>
+        </button>
+    </div>
+
+    <mat-menu #userMenu="matMenu" class="user-profile-menu" xPosition="before">
+        <div
+            class="menu-user-header"
+            (click)="$event.stopPropagation()"
+            (keydown.enter)="$event.stopPropagation()"
+            tabindex="0"
+            role="button"
+        >
+            <div
+                class="user-avatar-large"
+                [style.background-color]="getColorForUser(user()?.id || '')"
+            >
+                {{ getInitial(userDisplayName()) }}
+            </div>
+            <div class="user-info">
+                <div class="user-name">{{ userDisplayName() }}</div>
+                <div class="user-email">{{ user()?.email }}</div>
+            </div>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item routerLink="/profile">
+            <mat-icon>person</mat-icon>
+            <span>Manage profile</span>
+        </button>
+        <button mat-menu-item (click)="onLogout()">
+            <mat-icon color="warn">logout</mat-icon>
+            <span style="color: var(--mat-sys-error)">Sign out</span>
+        </button>
+    </mat-menu>
+</mat-toolbar>
