@@ -23,6 +23,10 @@ type CollabSocket = Socket<any, any, any, CollabSocketData>;
 
 @WebSocketGateway({
     namespace: '/docs',
+    cors: {
+        origin: process.env.CLIENT_URL || 'http://localhost:4200',
+        credentials: true,
+    },
 })
 export class CollabGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer()
@@ -88,6 +92,7 @@ export class CollabGateway implements OnGatewayConnection, OnGatewayDisconnect {
             const initialState = Y.encodeStateAsUpdate(ydoc);
 
             client.emit('sync', Buffer.from(initialState));
+            client.emit('session', { role, isAnonymous });
 
             this.logger.log(`User ${userId} successfully joined document ${docId} as ${role}`);
         } catch (error: unknown) {
@@ -207,5 +212,16 @@ export class CollabGateway implements OnGatewayConnection, OnGatewayDisconnect {
             this.logger.error(`Failed handling update for doc ${docId}: ${message}`);
             client.emit('error', { message: 'Failed to process document update' });
         }
+    }
+
+    @SubscribeMessage('awareness-update')
+    public handleAwarenessUpdate(
+        @ConnectedSocket() client: CollabSocket,
+        @MessageBody() update: Buffer,
+    ): void {
+        const { docId, accessRevoked } = client.data ?? {};
+        if (!docId || accessRevoked) return;
+
+        client.to(docId).emit('awareness-update', update);
     }
 }
