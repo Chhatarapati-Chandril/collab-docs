@@ -1,1 +1,134 @@
-<p>doc-card works!</p>
+@if (viewMode === 'grid') {
+    <div
+        class="doc-card doc-card-grid"
+        (click)="open.emit(document.id)"
+        (keydown.enter)="open.emit(document.id)"
+        tabindex="0"
+        role="button"
+    >
+        <div class="card-preview" [style.background-color]="getColorForId(document.id)">
+            @if (hasValidTitle) {
+                <div class="doc-watermark">{{ watermarkChar }}</div>
+            } @else {
+                <mat-icon class="doc-default-icon">description</mat-icon>
+            }
+
+            <!-- Actions Menu button overlay -->
+            <div class="menu-container">
+                <button
+                    mat-icon-button
+                    [matMenuTriggerFor]="docMenu"
+                    (click)="$event.stopPropagation()"
+                >
+                    <mat-icon>more_vert</mat-icon>
+                </button>
+            </div>
+        </div>
+        <div class="card-strip">
+            <div class="doc-title" [title]="document.title || 'Untitled document'">
+                {{ document.title || 'Untitled document' }}
+            </div>
+            <div class="doc-meta">
+                <div class="meta-row">
+                    <mat-icon class="meta-icon">article</mat-icon>
+                    <span>Edited {{ document.updatedAt | relativeTime }}</span>
+                </div>
+
+                @if (isOwner) {
+                    @if (document._count?.permissions && document._count.permissions > 0) {
+                        <div class="meta-row">
+                            <mat-icon class="meta-icon">group</mat-icon>
+                            <span>Shared with {{ document._count.permissions }} people</span>
+                        </div>
+                    }
+                } @else {
+                    <div class="meta-row shared-by">
+                        <div
+                            class="tiny-avatar"
+                            [style.background-color]="
+                                getColorForUser(document.owner?.id || 'Unknown')
+                            "
+                        >
+                            {{ getInitial(document.owner?.displayName || '?') }}
+                        </div>
+                        <span class="shared-by-text"
+                            >Shared by {{ document.owner?.displayName || 'Unknown' }}</span
+                        >
+                    </div>
+                    @if (document.permission) {
+                        <div class="meta-row permission-chip-row">
+                            <mat-chip class="permission-chip">{{
+                                document.permission === 'EDITOR' ? 'Editor' : 'Viewer'
+                            }}</mat-chip>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+} @else {
+    <div
+        class="doc-card-list"
+        (click)="open.emit(document.id)"
+        (keydown.enter)="open.emit(document.id)"
+        tabindex="0"
+        role="button"
+    >
+        <div class="list-avatar" [style.background-color]="getColorForId(document.id)">
+            @if (hasValidTitle) {
+                <span class="list-watermark">{{ watermarkChar }}</span>
+            } @else {
+                <mat-icon class="list-default-icon">description</mat-icon>
+            }
+        </div>
+
+        <div class="list-title" [title]="document.title || 'Untitled document'">
+            {{ document.title || 'Untitled document' }}
+        </div>
+
+        <div class="list-owner">
+            @if (isOwner) {
+                Me
+            } @else {
+                {{ document.owner?.displayName || 'Unknown' }}
+            }
+        </div>
+
+        <div class="list-dates">
+            <div class="list-date-edited">Edited {{ document.updatedAt | relativeTime }}</div>
+            <div class="list-date-created">
+                Created {{ document.createdAt | date: 'mediumDate' }}
+            </div>
+        </div>
+
+        <div class="list-actions">
+            <button
+                mat-icon-button
+                [matMenuTriggerFor]="docMenu"
+                (click)="$event.stopPropagation()"
+            >
+                <mat-icon>more_vert</mat-icon>
+            </button>
+        </div>
+    </div>
+}
+
+<!-- Shared Menu Definition -->
+<mat-menu #docMenu="matMenu">
+    @if (isOwner) {
+        <button mat-menu-item (click)="rename.emit(document)">
+            <mat-icon>edit</mat-icon><span>Rename</span>
+        </button>
+        <button mat-menu-item (click)="share.emit(document)">
+            <mat-icon>share</mat-icon><span>Share</span>
+        </button>
+    }
+    <button mat-menu-item (click)="copyDoc.emit(document.id)">
+        <mat-icon>content_copy</mat-icon><span>Make a copy</span>
+    </button>
+    @if (isOwner) {
+        <button mat-menu-item (click)="delete.emit(document.id)">
+            <mat-icon>delete</mat-icon><span>Delete</span>
+        </button>
+    }
+</mat-menu>
