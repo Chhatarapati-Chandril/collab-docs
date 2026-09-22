@@ -1,0 +1,16 @@
+export const NOTIFICATIONS_CONSTANTS = {
+    title: 'Notifications',
+    emptyState: 'You have no notifications',
+    markAsRead: 'Mark as read',
+    approve: 'Approve',
+    deny: 'Deny',
+    requestAccessPrefix: 'requested',
+    requestAccessSuffix: 'access to',
+    accessGrantedPrefix: 'You were granted',
+    accessGrantedSuffix: 'access to',
+    accessRemoved: 'Your access was revoked for',
+    unknownAction: 'New activity on',
+    errorFetching: 'Failed to load notifications',
+    errorAction: 'Failed to perform action',
+    actionSuccess: 'Action completed successfully',
+} as const;

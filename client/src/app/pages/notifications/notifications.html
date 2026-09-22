@@ -1,1 +1,141 @@
-<p>notifications works!</p>
+<div class="notifications-page">
+    <div class="header">
+        <h1>{{ CONSTANTS.title }}</h1>
+    </div>
+
+    @if (isLoading()) {
+        <div class="center-spinner">
+            <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+        </div>
+    } @else if (notifications().length === 0) {
+        <div class="empty-state">
+            <mat-icon>notifications_none</mat-icon>
+            <p>{{ CONSTANTS.emptyState }}</p>
+        </div>
+    } @else {
+        <div class="notifications-list">
+            @for (notification of notifications(); track notification.id) {
+                <div
+                    class="notification-item"
+                    [class.unread]="!notification.isRead"
+                    (click)="markAsRead(notification)"
+                    (keydown.enter)="markAsRead(notification)"
+                    tabindex="0"
+                    role="button"
+                >
+                    <!-- Left column: Avatar & Indicator -->
+                    <div class="notification-leading">
+                        @if (!notification.isRead) {
+                            <div class="unread-dot"></div>
+                        } @else {
+                            <div class="unread-spacer"></div>
+                        }
+
+                        <div
+                            class="user-avatar"
+                            [style.background-color]="
+                                getColorForUser(
+                                    notification.fromUser.id || notification.fromUser.displayName
+                                )
+                            "
+                        >
+                            {{ getInitial(notification.fromUser.displayName) }}
+                        </div>
+                    </div>
+
+                    <!-- Middle column: Content -->
+                    <div class="notification-content">
+                        <div class="notification-title">
+                            <!-- Format text based on type -->
+                            @if (notification.type === 'ACCESS_REQUEST') {
+                                <span class="user-name">{{
+                                    notification.fromUser.displayName
+                                }}</span>
+                                {{ CONSTANTS.requestAccessPrefix }}
+                                <strong>{{ notification.meta?.requestedPermission }}</strong>
+                                {{ CONSTANTS.requestAccessSuffix }}
+                                <a
+                                    [routerLink]="['/editor', notification.document.id]"
+                                    class="doc-link"
+                                    (click)="$event.stopPropagation()"
+                                >
+                                    {{ notification.document.title }}
+                                </a>
+                            } @else if (notification.type === 'PERMISSION_CHANGED') {
+                                @if (notification.meta?.grantedPermission === 'REMOVED') {
+                                    {{ CONSTANTS.accessRemoved }}
+                                    <strong>{{
+                                        notification.document?.title || 'a document'
+                                    }}</strong>
+                                } @else {
+                                    {{ CONSTANTS.accessGrantedPrefix }}
+                                    <strong>{{ notification.meta?.grantedPermission }}</strong>
+                                    {{ CONSTANTS.accessGrantedSuffix }}
+                                    <a
+                                        [routerLink]="['/editor', notification.document.id]"
+                                        class="doc-link"
+                                        (click)="$event.stopPropagation()"
+                                    >
+                                        {{ notification.document.title }}
+                                    </a>
+                                }
+                            } @else {
+                                {{ CONSTANTS.unknownAction }}
+                                <strong>{{ notification.document?.title || 'a document' }}</strong>
+                            }
+                        </div>
+                        <div class="notification-time">
+                            {{ notification.createdAt | relativeTime }}
+                        </div>
+                    </div>
+
+                    <!-- Right column: Actions -->
+                    @if (notification.type === 'ACCESS_REQUEST') {
+                        <div class="notification-actions">
+                            @if (!notification._resolved) {
+                                <mat-form-field
+                                    appearance="outline"
+                                    subscriptSizing="dynamic"
+                                    class="resolve-role-field"
+                                    style="width: 100px; margin-right: 8px"
+                                    (click)="$event.stopPropagation()"
+                                >
+                                    <mat-select
+                                        [value]="getGrantedPermission(notification)"
+                                        (selectionChange)="
+                                            setGrantedPermission(notification, $event.value)
+                                        "
+                                    >
+                                        <mat-option value="EDITOR">Editor</mat-option>
+                                        <mat-option value="VIEWER">Viewer</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                                <button
+                                    mat-stroked-button
+                                    (click)="
+                                        resolveRequest(notification, 'DENY');
+                                        $event.stopPropagation()
+                                    "
+                                >
+                                    {{ CONSTANTS.deny }}
+                                </button>
+                                <button
+                                    mat-flat-button
+                                    color="primary"
+                                    (click)="
+                                        resolveRequest(notification, 'APPROVE');
+                                        $event.stopPropagation()
+                                    "
+                                >
+                                    {{ CONSTANTS.approve }}
+                                </button>
+                            } @else {
+                                <span class="resolved-badge">{{ notification._resolvedText }}</span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
