@@ -1,1 +1,76 @@
-<p>home works!</p>
+<div class="content-container">
+    <div class="home-toolbar">
+        <h1 class="page-title">Documents</h1>
+        <div class="toolbar-actions">
+            <mat-button-toggle-group
+                [value]="filterSig()"
+                (change)="filterSig.set($event.value)"
+                class="filter-group"
+            >
+                <mat-button-toggle value="all">All</mat-button-toggle>
+                <mat-button-toggle value="owned">Owned by me</mat-button-toggle>
+                <mat-button-toggle value="shared">Shared with me</mat-button-toggle>
+            </mat-button-toggle-group>
+
+            <mat-button-toggle-group
+                [value]="viewModeSig()"
+                (change)="setViewMode($event.value)"
+                class="view-mode-group"
+            >
+                <mat-button-toggle value="grid" aria-label="Grid view">
+                    <mat-icon>grid_view</mat-icon>
+                </mat-button-toggle>
+                <mat-button-toggle value="list" aria-label="List view">
+                    <mat-icon>view_list</mat-icon>
+                </mat-button-toggle>
+            </mat-button-toggle-group>
+
+            <button mat-flat-button color="primary" (click)="onCreate()" class="new-doc-btn">
+                <mat-icon>add</mat-icon>
+                New document
+            </button>
+        </div>
+    </div>
+
+    @if (isLoading()) {
+        <div class="center-spinner">
+            <mat-progress-spinner mode="indeterminate" diameter="48" />
+        </div>
+    } @else {
+        @if (filteredDocuments().length === 0) {
+            <div class="empty-state">
+                <p>
+                    {{
+                        filterSig() === 'shared'
+                            ? CONSTANTS.emptyStateShared
+                            : CONSTANTS.emptyStateAll
+                    }}
+                </p>
+            </div>
+        } @else {
+            <div [class]="viewModeSig() === 'grid' ? 'doc-grid' : 'doc-list'">
+                @if (viewModeSig() === 'list') {
+                    <div class="list-header">
+                        <div class="header-avatar-spacer"></div>
+                        <div class="header-col header-title">Name</div>
+                        <div class="header-col header-owner">Owner</div>
+                        <div class="header-col header-dates">Dates</div>
+                        <div class="header-actions-spacer"></div>
+                    </div>
+                }
+                @for (doc of filteredDocuments(); track doc.id) {
+                    <app-doc-card
+                        [document]="doc"
+                        [isOwner]="doc.isOwner"
+                        [viewMode]="viewModeSig()"
+                        (open)="onOpen($event)"
+                        (rename)="onRename($event)"
+                        (share)="onShare($event)"
+                        (copyDoc)="onCopy($event)"
+                        (delete)="onDelete($event)"
+                    />
+                }
+            </div>
+        }
+    }
+</div>
