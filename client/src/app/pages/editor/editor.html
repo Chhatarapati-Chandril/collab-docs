@@ -1,1 +1,132 @@
-<p>editor works!</p>
+<div class="editor-page">
+    <div class="editor-toolbar-row">
+        <button mat-icon-button routerLink="/home">
+            <mat-icon>arrow_back</mat-icon>
+        </button>
+
+        @if (isEditingTitle()) {
+            <input
+                #titleInput
+                class="doc-title-input"
+                [formControl]="titleControl"
+                [placeholder]="EDITOR_CONSTANTS.titlePlaceholder"
+                [attr.aria-label]="EDITOR_CONSTANTS.titleAriaLabel"
+                (blur)="commitTitleEdit()"
+                (keyup.enter)="commitTitleEdit()"
+                (keyup.escape)="cancelTitleEdit()"
+            />
+        } @else if (document()) {
+            <span
+                class="doc-title"
+                [class.editable]="role() === 'OWNER'"
+                [title]="role() === 'OWNER' ? EDITOR_CONSTANTS.titleTooltip : ''"
+                (click)="startTitleEdit()"
+                (keydown.enter)="startTitleEdit()"
+                tabindex="0"
+                role="button"
+            >
+                {{ document()!.title || EDITOR_CONSTANTS.defaultTitle }}
+            </span>
+        }
+
+        <span class="spacer"></span>
+
+        <button
+            mat-icon-button
+            (click)="downloadPdf()"
+            [disabled]="isDownloadingPdf()"
+            title="Download as PDF"
+            style="margin-right: 8px"
+        >
+            @if (isDownloadingPdf()) {
+                <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+                <mat-icon>picture_as_pdf</mat-icon>
+            }
+        </button>
+
+        <app-presence-bar />
+
+        <mat-chip [class]="'status-' + connectionStatus()">
+            <mat-icon matChipAvatar>
+                {{
+                    connectionStatus() === 'connected'
+                        ? 'cloud_done'
+                        : connectionStatus() === 'connecting'
+                          ? 'cloud_sync'
+                          : 'cloud_off'
+                }}
+            </mat-icon>
+
+            {{
+                connectionStatus() === 'connected'
+                    ? 'Live'
+                    : connectionStatus() === 'connecting'
+                      ? 'Connecting...'
+                      : 'Offline'
+            }}
+        </mat-chip>
+
+        @if (role() && role() !== 'OWNER') {
+            <mat-chip>{{ role() }}</mat-chip>
+        }
+    </div>
+
+    <app-offline-indicator />
+
+    @if (isLoading()) {
+        <div class="center-spinner">
+            <mat-progress-spinner mode="indeterminate" diameter="48" />
+        </div>
+    } @else if (accessDeniedDocId()) {
+        <div class="fatal-error">
+            <mat-icon>lock_outline</mat-icon>
+            <p>{{ EDITOR_CONSTANTS.accessDeniedMsg }}</p>
+            <div style="display: flex; gap: 16px; align-items: center; margin-top: 16px">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" style="width: 120px">
+                    <mat-select
+                        [value]="requestedPermission()"
+                        (selectionChange)="requestedPermission.set($event.value)"
+                        [disabled]="isRequestingAccess() || accessRequestSent()"
+                    >
+                        <mat-option value="EDITOR">Editor</mat-option>
+                        <mat-option value="VIEWER">Viewer</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <button mat-button routerLink="/home">Back to home</button>
+                <button
+                    mat-flat-button
+                    color="primary"
+                    [disabled]="isRequestingAccess() || accessRequestSent()"
+                    (click)="requestAccess()"
+                >
+                    @if (isRequestingAccess()) {
+                        <mat-spinner diameter="20"></mat-spinner>
+                    } @else if (accessRequestSent()) {
+                        Request sent
+                    } @else {
+                        {{ EDITOR_CONSTANTS.requestAccessBtn }}
+                    }
+                </button>
+            </div>
+        </div>
+    } @else if (fatalError()) {
+        <div class="fatal-error">
+            <mat-icon>error_outline</mat-icon>
+
+            <p>{{ fatalError() }}</p>
+
+            <button mat-flat-button color="primary" routerLink="/home">Back to documents</button>
+        </div>
+    } @else {
+        <div class="quill-container">
+            <quill-editor
+                class="document-editor"
+                theme="snow"
+                [readOnly]="!canEdit()"
+                [modules]="quillModules"
+                (onEditorCreated)="onEditorCreated($event)"
+            />
+        </div>
+    }
+</div>
