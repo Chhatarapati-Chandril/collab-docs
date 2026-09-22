@@ -28,10 +28,16 @@
         "@tiptap/extension-underline": "^2.27.2",
         "@tiptap/pm": "^2.27.2",
         "@tiptap/starter-kit": "^2.27.2",
+        "html2canvas": "^1.4.1",
+        "jspdf": "^4.2.1",
+        "ngx-quill": "^31.0.1",
+        "quill": "^2.0.3",
+        "quill-cursors": "^4.0.4",
         "rxjs": "~7.8.0",
         "socket.io-client": "^4.8.3",
         "tslib": "^2.3.0",
         "y-protocols": "^1.0.7",
+        "y-quill": "^1.0.0",
         "yjs": "^13.6.32"
     },
     "devDependencies": {
