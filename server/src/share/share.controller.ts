@@ -9,6 +9,7 @@ import {
     Param,
     HttpCode,
     Patch,
+    Get,
 } from '@nestjs/common';
 import { ShareService } from './share.service';
 import { ShareEmailDto } from './dto/share-email.dto';
@@ -20,11 +21,29 @@ import type { RequestWithUser } from '../common/types/request-with-user.type';
 import { ResolveAccessRequestDto } from './dto/resolve-access-request.dto';
 import { SHARE_CONSTANTS } from '../common/constants/share.constants';
 import { SetPublicAccessDto } from './dto/set-public-access.dto';
+import { Serialize } from '../common/intercepters/serialize.interceptor';
+import { DocPermissionResponseDto } from './dto/doc-permission-response.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('share')
 export class ShareController {
     constructor(private readonly shareService: ShareService) {}
+
+    @Get(':docId/users')
+    @HttpCode(HttpStatus.OK)
+    @Serialize(DocPermissionResponseDto)
+    async getDocumentUsers(
+        @Req() req: RequestWithUser,
+        @Param('docId') docId: string,
+    ): Promise<ApiResponse<DocPermissionResponseDto[]>> {
+        const users = await this.shareService.getDocumentUsers(req.user.userId, docId);
+
+        return new ApiResponse({
+            statusCode: HttpStatus.OK,
+            message: 'Document users fetched successfully',
+            data: users,
+        });
+    }
 
     @Post('email')
     @HttpCode(HttpStatus.OK)
