@@ -1,0 +1,20 @@
+export const SHARE_PANEL_CONSTANTS = {
+    title: 'Share',
+    addPeopleLabel: 'Add people',
+    emailPlaceholder: 'Email address',
+    generalAccessLabel: 'General access',
+    restrictedLabel: 'Restricted',
+    restrictedDesc: 'Only people with access can open with the link',
+    anyoneLabel: 'Anyone with the link',
+    anyoneDesc: 'Anyone on the internet with the link can view/edit',
+    inviteSuccess: 'Invitation sent successfully',
+    roles: {
+        VIEWER: 'Viewer',
+        EDITOR: 'Editor',
+    },
+    manageAccessLabel: 'People with access',
+    revokeConfirmTitle: 'Revoke access?',
+    revokeConfirmMsg: 'Are you sure you want to remove this user from the document?',
+    revokeSuccess: 'Access revoked successfully',
+    permissionUpdateSuccess: 'Permission updated',
+} as const;

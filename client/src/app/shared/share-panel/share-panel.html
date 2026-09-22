@@ -1,1 +1,151 @@
-<p>share-panel works!</p>
+<h2 mat-dialog-title>{{ SHARE_PANEL_CONSTANTS.title }} "{{ data.document.title }}"</h2>
+
+<mat-dialog-content class="share-panel-content">
+    <!-- Add People Form -->
+    <div class="section-title">{{ SHARE_PANEL_CONSTANTS.addPeopleLabel }}</div>
+
+    <form [formGroup]="shareForm" (ngSubmit)="onShareSubmit()" class="share-form">
+        <mat-form-field appearance="outline" class="email-field">
+            <input
+                matInput
+                formControlName="email"
+                type="email"
+                [placeholder]="SHARE_PANEL_CONSTANTS.emailPlaceholder"
+                [matAutocomplete]="auto"
+                (input)="shareError.set(null)"
+            />
+            <mat-autocomplete #auto="matAutocomplete">
+                @for (user of suggestedUsers(); track user.id) {
+                    <mat-option [value]="user.email">
+                        <div class="user-suggestion">
+                            <span class="user-name">{{ user.displayName }}</span>
+                            <span class="user-email">({{ user.email }})</span>
+                        </div>
+                    </mat-option>
+                }
+            </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="role-field">
+            <mat-select formControlName="permission">
+                <mat-option value="EDITOR">{{ SHARE_PANEL_CONSTANTS.roles.EDITOR }}</mat-option>
+                <mat-option value="VIEWER">{{ SHARE_PANEL_CONSTANTS.roles.VIEWER }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            [disabled]="shareForm.invalid || isSharing()"
+            class="share-button"
+        >
+            @if (isSharing()) {
+                <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+                Share
+            }
+        </button>
+    </form>
+
+    @if (shareError()) {
+        <div class="error-text">{{ shareError() }}</div>
+    }
+
+    <!-- Manage Access Section -->
+    <div class="divider"></div>
+
+    <div class="manage-access-section">
+        <div class="section-title">{{ SHARE_PANEL_CONSTANTS.manageAccessLabel }}</div>
+
+        @if (isLoadingUsers()) {
+            <div style="display: flex; justify-content: center; padding: 16px">
+                <mat-spinner diameter="24"></mat-spinner>
+            </div>
+        } @else if (usersError()) {
+            <div class="error-text">{{ usersError() }}</div>
+        } @else {
+            @for (docUser of documentUsers(); track docUser.id) {
+                <div class="user-row">
+                    <div
+                        class="user-avatar"
+                        [style.background-color]="getColorForUser(docUser.user.id)"
+                    >
+                        {{ getInitial(docUser.user.displayName) }}
+                    </div>
+                    <div class="user-info">
+                        <div class="user-name">{{ docUser.user.displayName }}</div>
+                        <div class="user-email">{{ docUser.user.email }}</div>
+                    </div>
+                    <mat-form-field appearance="outline" class="user-role-field">
+                        <mat-select
+                            [value]="docUser.permission"
+                            (selectionChange)="changeUserPermission(docUser, $event.value)"
+                        >
+                            <mat-option value="EDITOR">{{
+                                SHARE_PANEL_CONSTANTS.roles.EDITOR
+                            }}</mat-option>
+                            <mat-option value="VIEWER">{{
+                                SHARE_PANEL_CONSTANTS.roles.VIEWER
+                            }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <button
+                        mat-icon-button
+                        class="revoke-button"
+                        (click)="revokeUserAccess(docUser)"
+                        title="Remove access"
+                    >
+                        <mat-icon>close</mat-icon>
+                    </button>
+                </div>
+            }
+            @if (documentUsers().length === 0) {
+                <div class="empty-text">No one else has access yet.</div>
+            }
+        }
+    </div>
+
+    <!-- General Access Section -->
+    <div class="divider"></div>
+
+    <div class="general-access-section">
+        <div class="icon-container">
+            <mat-icon>{{ publicAccess() ? 'public' : 'lock' }}</mat-icon>
+        </div>
+
+        <div class="access-details">
+            <div class="section-title">{{ SHARE_PANEL_CONSTANTS.generalAccessLabel }}</div>
+
+            <mat-form-field appearance="outline" class="public-access-field">
+                <mat-select
+                    [value]="publicAccess() || 'RESTRICTED'"
+                    (selectionChange)="onPublicAccessChange($event.value)"
+                    [disabled]="isUpdatingAccess()"
+                >
+                    <mat-option value="RESTRICTED">{{
+                        SHARE_PANEL_CONSTANTS.restrictedLabel
+                    }}</mat-option>
+                    <mat-option value="VIEWER">{{ SHARE_PANEL_CONSTANTS.roles.VIEWER }}</mat-option>
+                    <mat-option value="EDITOR">{{ SHARE_PANEL_CONSTANTS.roles.EDITOR }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <div class="access-description">
+                @if (publicAccess()) {
+                    {{ SHARE_PANEL_CONSTANTS.anyoneDesc }}
+                } @else {
+                    {{ SHARE_PANEL_CONSTANTS.restrictedDesc }}
+                }
+            </div>
+
+            @if (accessError()) {
+                <div class="error-text">{{ accessError() }}</div>
+            }
+        </div>
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Done</button>
+</mat-dialog-actions>
