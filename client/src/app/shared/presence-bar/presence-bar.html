@@ -1,1 +1,18 @@
-<p>presence-bar works!</p>
+@if (users().length > 0) {
+    <div class="presence-bar">
+        @for (user of visibleUsers(); track user.clientId) {
+            <div class="avatar" [style.background-color]="user.color" [title]="user.name">
+                @if (user.isAnonymous && user.avatarEmoji) {
+                    <span class="avatar-emoji">{{ user.avatarEmoji }}</span>
+                } @else {
+                    {{ user.initials }}
+                }
+            </div>
+        }
+        @if (overflowCount() > 0) {
+            <div class="avatar avatar--overflow" [title]="overflowTooltip()">
+                +{{ overflowCount() }}
+            </div>
+        }
+    </div>
+}

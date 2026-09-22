@@ -1,0 +1,41 @@
+.presence-bar {
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse; // rightmost avatar renders first so overlap stacks left-to-right
+}
+
+.avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 32px;
+    height: 32px;
+
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--mat-sys-on-primary);
+
+    cursor: default;
+    user-select: none;
+
+    // Overlap each avatar onto the previous one
+    margin-left: -8px;
+
+    &:last-child {
+        margin-left: 0;
+    }
+
+    &--overflow {
+        background: #9e9e9e;
+        font-size: 0.65rem;
+    }
+
+    .avatar-emoji {
+        font-size: 1rem;
+        line-height: 1;
+    }
+}
