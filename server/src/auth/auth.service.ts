@@ -46,7 +46,7 @@ export class AuthService {
             });
 
             // 4. exclude the hashed password before returning
-            const { password, ...result } = user;
+            const { password, ...result } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
             return {
                 user: result,
             };
@@ -92,7 +92,7 @@ export class AuthService {
                 },
             });
 
-            const { password, ...result } = user;
+            const { password, ...result } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
 
             return {
                 accessToken,
@@ -166,7 +166,7 @@ export class AuthService {
             const hashedRefreshToken = await this.hashService.hash(newRefreshToken);
 
             await this.prisma.$transaction([
-                this.prisma.refreshToken.delete({
+                this.prisma.refreshToken.deleteMany({
                     where: {
                         id: storedTokenId,
                     },
