@@ -60,7 +60,7 @@ Each open document has one authoritative Yjs instance in server memory. Clients 
 
 | | |
 |---|---|
-| **Frontend** | Angular (standalone, signals) · TipTap · Yjs · Socket.IO client |
+| **Frontend** | Angular (standalone, signals) · Quill · Yjs · Socket.IO client |
 | **Backend** | NestJS · Socket.IO Gateway · Prisma · `@nestjs/jwt` · `@nestjs/throttler` |
 | **Data** | PostgreSQL (Supabase) · Redis (Redis Cloud) |
 | **Deploy** | Vercel (frontend) · Railway / Render (backend) |
