@@ -1,1 +1,18 @@
-<p>offline-indicator works!</p>
+@if (isVisible()) {
+    <div class="offline-indicator" [class.reconnecting]="status() === 'connecting'">
+        <mat-icon>
+            {{
+                status() === 'connecting'
+                    ? OFFLINE_INDICATOR_CONSTANTS.connectingIcon
+                    : OFFLINE_INDICATOR_CONSTANTS.disconnectedIcon
+            }}
+        </mat-icon>
+        <span>
+            {{
+                status() === 'connecting'
+                    ? OFFLINE_INDICATOR_CONSTANTS.connectingMessage
+                    : OFFLINE_INDICATOR_CONSTANTS.disconnectedMessage
+            }}
+        </span>
+    </div>
+}
