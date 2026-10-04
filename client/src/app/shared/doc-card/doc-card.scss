@@ -1,32 +1,63 @@
 .doc-card {
     display: flex;
     flex-direction: column;
-    border-radius: 8px;
-    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 16px;
+    border: 1px solid color-mix(in srgb, var(--mat-sys-outline) 15%, transparent);
     overflow: hidden;
     cursor: pointer;
-    transition: box-shadow 0.2s ease;
-    background-color: var(--mat-sys-surface);
-    transition:
-        box-shadow 0.2s,
-        border-color 0.2s;
+    background-color: var(--mat-sys-surface-container-lowest);
+    transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
     height: 100%;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
 
     &:hover {
-        box-shadow: var(--mat-sys-level3);
-        border-color: var(--mat-sys-primary);
-        box-shadow: 0 4px 12px var(--mat-sys-shadow, rgba(0, 0, 0, 0.1));
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        border-color: color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
+        
+        .card-preview {
+            border-bottom-color: color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+        }
     }
 }
 
 .card-preview {
-    height: 180px;
+    height: 160px;
     position: relative;
-    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline) 10%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+        z-index: 0;
+        pointer-events: none;
+    }
+    
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px);
+        background-size: 12px 12px;
+        z-index: 0;
+        pointer-events: none;
+    }
+}
+
+[data-theme='dark'] .card-preview::before,
+:host-context([data-theme='dark']) .card-preview::before {
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+}
+[data-theme='dark'] .card-preview::after,
+:host-context([data-theme='dark']) .card-preview::after {
+    background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
 }
 
 .doc-watermark {
@@ -37,6 +68,7 @@
     color: var(--mat-sys-on-surface);
     opacity: 0.15;
     user-select: none;
+    z-index: 1;
 }
 
 .doc-default-icon {
@@ -48,18 +80,20 @@
     height: 32px;
     color: var(--mat-sys-on-surface);
     opacity: 0.2;
+    z-index: 1;
 }
 
 .menu-container {
     position: absolute;
     top: 8px;
     right: 8px;
-
-    // Only show button on hover to keep preview clean,
-    // unless menu is open (Angular Material handles focus/active state naturally,
-    // but a CSS hover on the card is easiest)
+    z-index: 10;
     opacity: 0;
     transition: opacity 0.2s;
+    background: color-mix(in srgb, var(--mat-sys-surface) 50%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 50%;
 }
 
 .doc-card:hover .menu-container {
@@ -67,20 +101,19 @@
 }
 
 .card-strip {
-    padding: 16px;
-    background-color: var(--mat-sys-surface);
+    padding: 20px;
+    background-color: var(--mat-sys-surface-container-lowest);
     display: flex;
     flex-direction: column;
     flex: 1;
 }
 
 .doc-title {
-    font-size: 15px;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 600;
     color: var(--mat-sys-on-surface);
     margin-bottom: 8px;
-
-    // Text truncation
+    letter-spacing: -0.2px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -89,47 +122,48 @@
 .doc-meta {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     margin-top: auto;
 }
 
 .meta-row {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 12px;
+    gap: 8px;
+    font-size: 13px;
     color: var(--mat-sys-on-surface-variant);
 
     .meta-icon {
         font-size: 16px;
         width: 16px;
         height: 16px;
-        color: var(--mat-sys-primary); // Make icons pop slightly
+        color: var(--mat-sys-primary);
+        opacity: 0.8;
     }
 }
 
 .meta-created {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--mat-sys-on-surface-variant);
     opacity: 0.8;
-    padding-left: 22px; // Align with text of meta-row (16px icon + 6px gap)
+    padding-left: 24px;
     margin-top: -2px;
 }
 
 .shared-by {
-    margin-top: 4px;
+    margin-top: 6px;
 }
 
 .tiny-avatar {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #ffffff;
     font-size: 10px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .shared-by-text {
@@ -139,18 +173,18 @@
 }
 
 .permission-chip-row {
-    margin-top: 4px;
+    margin-top: 6px;
 }
 
-// Override mat-chip to be small/dense
 ::ng-deep .permission-chip.mat-mdc-standard-chip {
-    min-height: 20px;
-    padding: 0 8px;
+    min-height: 22px;
+    padding: 0 10px;
     background-color: var(--mat-sys-surface-container-highest);
+    border-radius: 6px;
 
     .mdc-evolution-chip__text-label {
         font-size: 11px;
-        font-weight: 500;
+        font-weight: 600;
         color: var(--mat-sys-on-surface-variant);
     }
 }
@@ -159,65 +193,83 @@
 .doc-card-list {
     display: flex;
     align-items: center;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    padding: 16px 20px;
+    border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline) 15%, transparent);
     cursor: pointer;
     background-color: transparent;
     transition: background-color 0.2s;
 
     &:hover {
-        background-color: var(--mat-sys-surface-container-low);
+        background-color: color-mix(in srgb, var(--mat-sys-surface-container-low) 50%, transparent);
     }
 }
 
-// Remove bottom border from last item (parent is .doc-list which has border and hidden overflow)
 :host:last-child .doc-card-list {
     border-bottom: none;
 }
 
 .list-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 16px;
+    margin-right: 20px;
     flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+        z-index: 0;
+        pointer-events: none;
+    }
+}
+
+[data-theme='dark'] .list-avatar::before,
+:host-context([data-theme='dark']) .list-avatar::before {
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
 }
 
 .list-watermark {
     font-family: 'Fraunces', Georgia, serif;
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 700;
     line-height: 1;
     color: var(--mat-sys-on-surface);
-    opacity: 0.15;
+    opacity: 0.2;
     user-select: none;
+    z-index: 1;
 }
 
 .list-default-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
     color: var(--mat-sys-on-surface);
-    opacity: 0.2;
+    opacity: 0.3;
+    z-index: 1;
 }
 
 .list-title {
     flex: 2;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
     color: var(--mat-sys-on-surface);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     padding-right: 16px;
+    letter-spacing: -0.2px;
 }
 
 .list-owner {
     flex: 1;
-    font-size: 13px;
+    font-size: 14px;
     color: var(--mat-sys-on-surface-variant);
     white-space: nowrap;
     overflow: hidden;
@@ -234,12 +286,12 @@
 }
 
 .list-date-edited {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--mat-sys-on-surface-variant);
 }
 
 .list-date-created {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--mat-sys-on-surface-variant);
     opacity: 0.7;
     margin-top: 2px;
