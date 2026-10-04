@@ -48,6 +48,7 @@
         "class-validator": "^0.15.1",
         "cookie-parser": "^1.4.7",
         "dotenv-expand": "^1000.0.0",
+        "google-auth-library": "^11.1.0",
         "nest-winston": "^1.10.2",
         "passport": "^0.7.0",
         "passport-jwt": "^4.0.1",

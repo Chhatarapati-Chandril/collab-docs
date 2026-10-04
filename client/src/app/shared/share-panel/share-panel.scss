@@ -32,7 +32,7 @@
 
 .divider {
     height: 1px;
-    background-color: rgba(0, 0, 0, 0.12);
+    background-color: var(--mat-sys-shadow, rgba(0, 0, 0, 0.15));
     margin: 16px 0;
 }
 
@@ -110,7 +110,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #ffffff;
     font-weight: 500;
 }
 .user-info {

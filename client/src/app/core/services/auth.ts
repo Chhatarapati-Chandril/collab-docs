@@ -45,6 +45,18 @@ export class Auth {
         this.userSig.set(res.data.user);
     }
 
+    async googleLogin(idToken: string): Promise<void> {
+        const res = await firstValueFrom(
+            this.http.post<ApiResponse<LoginResponse>>(
+                `${this.baseUrl}/google`,
+                { idToken },
+                { withCredentials: true },
+            ),
+        );
+        this.accessTokenSig.set(res.data.accessToken);
+        this.userSig.set(res.data.user);
+    }
+
     async register(payload: RegisterPayload): Promise<void> {
         await firstValueFrom(
             this.http.post<ApiResponse<RegisterResponse>>(`${this.baseUrl}/register`, payload, {

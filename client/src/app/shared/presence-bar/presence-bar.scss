@@ -13,7 +13,7 @@
     height: 32px;
 
     border-radius: 50%;
-    border: 2px solid #ffffff;
+    border: 2px solid var(--mat-sys-surface);
 
     font-size: 0.7rem;
     font-weight: 600;
@@ -30,7 +30,8 @@
     }
 
     &--overflow {
-        background: #9e9e9e;
+        background: var(--mat-sys-surface-variant);
+        color: var(--mat-sys-on-surface-variant);
         font-size: 0.65rem;
     }
 

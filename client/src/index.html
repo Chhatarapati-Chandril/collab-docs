@@ -13,10 +13,21 @@
             rel="stylesheet"
         />
         <link
-            href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&display=swap"
             rel="stylesheet"
         />
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <script>
+            (function () {
+                try {
+                    var theme = localStorage.getItem('collab_docs_theme');
+                    if (theme === 'dark' || theme === 'light') {
+                        document.documentElement.setAttribute('data-theme', theme);
+                    }
+                } catch (e) {}
+            })();
+        </script>
     </head>
     <body>
         <app-root></app-root>

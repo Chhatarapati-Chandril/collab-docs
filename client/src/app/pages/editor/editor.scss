@@ -5,7 +5,7 @@
     height: calc(100vh - 64px);
     min-height: 0;
 
-    background: #ffffff;
+    background: var(--mat-sys-surface-container-low);
 
     // Prevent the whole page from scrolling.
     // Only the Quill document itself should scroll.
@@ -27,9 +27,9 @@
 
     min-height: 56px;
 
-    background: #ffffff;
+    background: var(--mat-sys-surface);
 
-    border-bottom: 1px solid #f1f3f4;
+    border-bottom: 1px solid var(--mat-sys-surface-container);
 
     z-index: 20;
 }
@@ -52,7 +52,7 @@
         padding: 2px 6px;
 
         &:hover {
-            background: #f1f3f4;
+            background: var(--mat-sys-surface-container-high);
         }
     }
 }
@@ -69,7 +69,7 @@
     color: var(--mat-sys-on-surface);
 
     border: none;
-    border-bottom: 2px solid #1a73e8;
+    border-bottom: 2px solid var(--mat-sys-primary);
     border-radius: 0;
 
     outline: none;
@@ -93,12 +93,13 @@
 
     width: 100%;
 
-    background: #ffffff;
+    background: var(--mat-sys-surface-container-low);
 
-    // IMPORTANT:
-    // Do NOT put overflow-y: auto here.
-    // Quill's .ql-container handles scrolling.
-    overflow: hidden;
+    // .editor-page already has overflow: hidden to prevent body scroll.
+    // Do NOT set overflow: hidden here — it would clip toolbar dropdowns
+    // (position: absolute) making them invisible. .ql-container handles
+    // its own scrolling with overflow-y: auto.
+    overflow: visible;
 }
 
 // =========================================================
@@ -121,23 +122,31 @@
 
 ::ng-deep .quill-container .ql-toolbar.ql-snow {
     width: 100%;
-    max-width: 1100px;
+    max-width: 1200px;
 
     flex-shrink: 0;
 
-    margin: 32px auto 24px;
+    padding: 6px 20px;
+    // Do NOT set overflow-x here — it creates a clipping context
+    // that hides position:absolute picker dropdowns
+    overflow: visible;
 
-    padding: 0;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 10px 10px 0 0;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.04),
+        0 1px 2px rgba(0, 0, 0, 0.03);
 
-    border: none;
-
-    background: #ffffff;
+    background: var(--mat-sys-surface-container);
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    z-index: 10;
+    // Toolbar must sit above the document surface so dropdowns overlay it
+    position: relative;
+    z-index: 20;
 
     // =====================================================
     // TOOLBAR GROUPS
@@ -146,11 +155,29 @@
     .ql-formats {
         display: flex;
         align-items: center;
+        gap: 2px;
+        margin: 0;
+        padding: 0 20px;
+        position: relative;
 
-        margin-right: 14px;
+        &:first-child {
+            padding-left: 0;
+        }
 
         &:last-child {
-            margin-right: 0;
+            padding-right: 0;
+        }
+
+        // Industry-standard separator: perfectly centered in the padding gap
+        &:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1px;
+            height: 16px;
+            background: var(--mat-sys-outline-variant);
         }
     }
 
@@ -159,35 +186,46 @@
     // =====================================================
 
     button {
-        width: 34px;
-        height: 34px;
+        width: 26px;
+        height: 26px;
 
-        padding: 6px;
+        padding: 4px;
 
         display: inline-flex;
         align-items: center;
         justify-content: center;
 
         border: none;
-        border-radius: 6px;
+        border-radius: 5px;
+        background: transparent;
+        cursor: pointer;
 
         transition:
-            background-color 0.15s ease,
-            color 0.15s ease;
+            background-color 0.12s ease,
+            color 0.12s ease;
 
         &:hover {
-            background: #f1f3f4;
+            background: var(--mat-sys-surface-container-high);
         }
 
         &:focus-visible {
-            outline: 2px solid #1a73e8;
+            outline: 2px solid var(--mat-sys-primary);
             outline-offset: 1px;
         }
     }
 
     // Active formatting button
     button.ql-active {
-        background: #e8f0fe;
+        background: var(--mat-sys-primary-container) !important;
+        color: var(--mat-sys-on-primary-container) !important;
+
+        .ql-stroke {
+            stroke: var(--mat-sys-on-primary-container) !important;
+        }
+        .ql-fill,
+        .ql-stroke.ql-fill {
+            fill: var(--mat-sys-on-primary-container) !important;
+        }
     }
 
     // =====================================================
@@ -195,65 +233,75 @@
     // =====================================================
 
     .ql-picker {
-        height: 34px;
-
+        height: 26px;
         color: var(--mat-sys-on-surface-variant);
     }
 
     .ql-picker-label {
-        height: 34px;
-
-        padding: 0 8px;
-
+        height: 26px;
+        padding: 0 5px;
         display: flex;
         align-items: center;
-
         border: none;
-
-        border-radius: 6px;
-
+        border-radius: 5px;
         color: var(--mat-sys-on-surface-variant);
-
-        font-size: 14px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background 0.12s ease;
 
         &:hover {
-            background: #f1f3f4;
+            background: var(--mat-sys-surface-container-high);
         }
-
         &.ql-active {
-            background: #e8f0fe;
+            background: var(--mat-sys-primary-container) !important;
+            color: var(--mat-sys-on-primary-container) !important;
+
+            .ql-stroke {
+                stroke: var(--mat-sys-on-primary-container) !important;
+            }
+            .ql-fill,
+            .ql-stroke.ql-fill {
+                fill: var(--mat-sys-on-primary-container) !important;
+            }
         }
     }
 
     .ql-picker-options {
-        padding: 4px 0;
-
-        border: 1px solid #dadce0;
-
-        border-radius: 6px;
-
-        background: #ffffff;
-
+        padding: 4px;
+        border: 1px solid var(--mat-sys-outline-variant);
+        min-width: max-content;
+        border-radius: 8px;
+        background: var(--mat-sys-surface);
         box-shadow:
-            0 2px 6px rgba(60, 64, 67, 0.15),
-            0 4px 12px rgba(60, 64, 67, 0.1);
+            0 4px 16px rgba(0, 0, 0, 0.12),
+            0 2px 4px rgba(0, 0, 0, 0.06);
 
-        z-index: 100;
+        // Critical: must be above toolbar z-index (20) and editor surface
+        z-index: 1000;
     }
 
     .ql-picker-item {
-        font-size: 14px;
+        font-size: 12px;
+        border-radius: 4px;
+        padding: 5px 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
 
-        padding: 6px 12px;
+        &:hover {
+            background: var(--mat-sys-surface-container-high);
+        }
     }
 
     // =====================================================
-    // ICONS
+    // SVG ICONS — slightly smaller, uniform
     // =====================================================
 
     svg {
-        width: 18px;
-        height: 18px;
+        width: 15px;
+        height: 15px;
+        display: block;
+        flex-shrink: 0;
     }
 }
 
@@ -263,22 +311,19 @@
 
 ::ng-deep .quill-container .ql-container.ql-snow {
     width: 100%;
-    max-width: 1100px;
+    max-width: 1200px;
 
     flex: 1;
 
     min-height: 0;
 
-    margin: 0 auto;
-
     // Remove Quill's default box
-    border: none;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
 
-    border-radius: 0;
-
-    background: #ffffff;
-
-    box-shadow: none;
+    background: var(--mat-sys-surface);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
     // =====================================================
     // THIS IS THE IMPORTANT SCROLL AREA
@@ -328,7 +373,7 @@
 
     color: var(--mat-sys-on-surface);
 
-    background: #ffffff;
+    background: transparent;
 
     // Better rendering
     -webkit-font-smoothing: antialiased;
@@ -425,7 +470,7 @@
 
         padding-left: 16px;
 
-        border-left: 3px solid #dadce0;
+        border-left: 3px solid var(--mat-sys-outline-variant);
 
         color: var(--mat-sys-on-surface-variant);
     }
@@ -458,7 +503,7 @@
 
         border-radius: 4px;
 
-        background: #f1f3f4;
+        background: var(--mat-sys-surface-container);
 
         font-size: 0.9em;
     }
@@ -501,7 +546,7 @@
 
         border: 0;
 
-        border-top: 1px solid #dadce0;
+        border-top: 1px solid var(--mat-sys-outline-variant);
     }
 }
 
@@ -521,7 +566,7 @@
 
     gap: 16px;
 
-    background: #ffffff;
+    background: var(--mat-sys-surface);
 }
 
 // =========================================================
@@ -542,7 +587,7 @@
 
     gap: 16px;
 
-    background: #ffffff;
+    background: var(--mat-sys-surface);
 
     color: var(--mat-sys-on-surface);
 
@@ -561,7 +606,7 @@
     ::ng-deep .quill-container .ql-toolbar.ql-snow {
         max-width: none;
 
-        margin: 24px 16px 20px;
+        margin: 24px 16px 0;
 
         width: calc(100% - 32px);
 
@@ -574,6 +619,8 @@
 
     ::ng-deep .quill-container .ql-container.ql-snow {
         max-width: none;
+        width: calc(100% - 32px);
+        margin: 0 16px 24px;
     }
 
     ::ng-deep .quill-container .ql-editor {
@@ -605,7 +652,7 @@
     }
 
     ::ng-deep .quill-container .ql-toolbar.ql-snow {
-        margin: 20px 8px 16px;
+        margin: 20px 8px 0;
 
         width: calc(100% - 16px);
 
@@ -625,6 +672,12 @@
         .ql-picker {
             height: 32px;
         }
+    }
+
+    ::ng-deep .quill-container .ql-container.ql-snow {
+        max-width: none;
+        width: calc(100% - 16px);
+        margin: 0 8px 24px;
     }
 
     ::ng-deep .quill-container .ql-editor {
@@ -650,5 +703,47 @@
         h3 {
             font-size: 1.2rem;
         }
+    }
+}
+
+// =========================================================
+// QUILL DARK MODE / THEME ADAPTATION
+// =========================================================
+
+::ng-deep .quill-container .ql-toolbar.ql-snow {
+    .ql-stroke {
+        stroke: var(--mat-sys-on-surface-variant);
+    }
+    .ql-fill,
+    .ql-stroke.ql-fill {
+        fill: var(--mat-sys-on-surface-variant);
+    }
+    .ql-picker {
+        color: var(--mat-sys-on-surface-variant);
+    }
+    .ql-picker-options {
+        background-color: var(--mat-sys-surface-container-high);
+        border-color: var(--mat-sys-outline-variant);
+    }
+    button:hover .ql-stroke,
+    .ql-picker-label:hover .ql-stroke,
+    button:hover .ql-fill,
+    .ql-picker-label:hover .ql-fill,
+    .ql-picker-item:hover {
+        color: var(--mat-sys-primary);
+    }
+}
+
+// =========================================================
+// DARK MODE SPECIFIC OVERRIDES
+// =========================================================
+
+html[data-theme='dark'] ::ng-deep .quill-container .ql-toolbar.ql-snow {
+    background: var(--mat-sys-surface-container-low);
+}
+
+@media (prefers-color-scheme: dark) {
+    html:not([data-theme='light']) ::ng-deep .quill-container .ql-toolbar.ql-snow {
+        background: var(--mat-sys-surface-container-low);
     }
 }

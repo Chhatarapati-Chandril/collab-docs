@@ -4,6 +4,19 @@
     <span class="spacer"></span>
 
     <div class="toolbar-actions">
+        <mat-button-toggle-group
+            [value]="themeService.themeSig()"
+            (change)="themeService.setTheme($event.value)"
+            hideSingleSelectionIndicator="true"
+            class="theme-toggle"
+        >
+            <mat-button-toggle value="light"><mat-icon>light_mode</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="dark"><mat-icon>dark_mode</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="system"
+                ><mat-icon>brightness_auto</mat-icon></mat-button-toggle
+            >
+        </mat-button-toggle-group>
+
         <button
             mat-icon-button
             routerLink="/notifications"

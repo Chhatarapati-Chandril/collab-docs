@@ -1,58 +1,50 @@
-<div class="auth-wrapper">
-    <mat-card class="auth-card">
-        <mat-card-header class="auth-title">
-            <mat-card-title>Sign in to CollabDocs</mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content>
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Email</mat-label>
-                    <input matInput formControlName="email" type="email" autocomplete="email" />
-                    @if (loginForm.controls.email.hasError('required')) {
-                        <mat-error>Email is required</mat-error>
-                    }
-                    @if (loginForm.controls.email.hasError('email')) {
-                        <mat-error>Enter a valid email</mat-error>
-                    }
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Password</mat-label>
-                    <input
-                        matInput
-                        formControlName="password"
-                        type="password"
-                        autocomplete="current-password"
-                    />
-                    @if (loginForm.controls.password.hasError('required')) {
-                        <mat-error>Password is required</mat-error>
-                    }
-                </mat-form-field>
-
-                @if (errorMessage()) {
-                    <p class="error-text">{{ errorMessage() }}</p>
-                }
-
-                <button
-                    mat-flat-button
-                    color="primary"
-                    class="full-width"
-                    type="submit"
-                    [disabled]="loginForm.invalid || isLoading()"
-                >
-                    @if (isLoading()) {
-                        <mat-progress-spinner diameter="20" mode="indeterminate" />
-                    } @else {
-                        Sign in
-                    }
-                </button>
-            </form>
-        </mat-card-content>
-
-        <mat-card-actions align="end">
-            <span>Don't have an account?</span>
-            <a mat-button routerLink="/register">Register</a>
-        </mat-card-actions>
-    </mat-card>
+<div class="login-wrapper">
+    <div class="theme-toggle-container">
+        <mat-button-toggle-group
+            [value]="themeService.themeSig()"
+            (change)="themeService.setTheme($event.value)"
+            hideSingleSelectionIndicator="true"
+            class="theme-toggle"
+        >
+            <mat-button-toggle value="light"><mat-icon>light_mode</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="dark"><mat-icon>dark_mode</mat-icon></mat-button-toggle>
+            <mat-button-toggle value="system"
+                ><mat-icon>brightness_auto</mat-icon></mat-button-toggle
+            >
+        </mat-button-toggle-group>
+    </div>
+    <div class="login-left">
+        <div class="logo">CollabDocs</div>
+        <div class="hero-content">
+            <h1 class="hero-headline">Write together, in real time.</h1>
+            <p class="hero-tagline">Real-time collaborative documents, built for teams.</p>
+        </div>
+        <div class="login-card">
+            <div id="googleButtonContainer"></div>
+        </div>
+    </div>
+    <div class="login-right">
+        <div class="animation-scene">
+            <div class="glow-bg"></div>
+            <div class="doc-card card-3"></div>
+            <div class="doc-card card-2"></div>
+            <div class="doc-card card-1">
+                <div class="text-lines">
+                    <div class="line w-70"></div>
+                    <div class="line w-100"></div>
+                    <div class="line w-90"></div>
+                    <div class="line w-40"></div>
+                </div>
+                <div class="cursor cursor-1">
+                    <div
+                        class="cursor-dot"
+                        [style.background-color]="getColorForUser('alice')"
+                    ></div>
+                </div>
+                <div class="cursor cursor-2">
+                    <div class="cursor-dot" [style.background-color]="getColorForUser('bob')"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

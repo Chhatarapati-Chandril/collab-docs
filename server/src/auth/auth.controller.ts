@@ -12,16 +12,14 @@ import type { Request, Response } from 'express';
 
 import { AuthService } from './auth.service';
 
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
-
 import { ApiResponse } from '../common/dto/api-response.dto';
 import { LoginResponseDto } from './dto/login-response.dto';
-import { RegisterResponseDto } from './dto/register-response.dto';
+
 import { ConfigService } from '@nestjs/config';
 import { Serialize } from '../common/intercepters/serialize.interceptor';
 import { RefreshResponseDto } from './dto/refresh-response.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { GoogleAuthDto } from './dto/google-auth.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -31,27 +29,14 @@ export class AuthController {
         private readonly configService: ConfigService,
     ) {}
 
-    @Post('register')
-    @HttpCode(HttpStatus.CREATED)
-    @Serialize(RegisterResponseDto)
-    async register(@Body() dto: RegisterDto): Promise<ApiResponse<RegisterResponseDto>> {
-        const result = await this.authService.register(dto);
-
-        return new ApiResponse({
-            statusCode: HttpStatus.CREATED,
-            message: 'User registered successfully',
-            data: result,
-        });
-    }
-
-    @Post('login')
+    @Post('google')
     @HttpCode(HttpStatus.OK)
     @Serialize(LoginResponseDto)
-    async login(
-        @Body() dto: LoginDto,
+    async googleLogin(
+        @Body() dto: GoogleAuthDto,
         @Res({ passthrough: true }) response: Response,
     ): Promise<ApiResponse<LoginResponseDto>> {
-        const result = await this.authService.login(dto);
+        const result = await this.authService.loginWithGoogle(dto);
 
         const refreshTokenExpiresInDays = Number(
             this.configService.getOrThrow<string>('JWT_REFRESH_TOKEN_EXPIRES_IN_DAYS'),

@@ -5,14 +5,16 @@
 
     padding: 6px 24px;
 
-    background: #fce8e6;
+    background: var(--mat-sys-error-container);
+    color: var(--mat-sys-on-error-container);
     color: var(--mat-sys-error);
 
     font-size: 0.8125rem;
 
     // Reconnecting state uses a quieter blue tone
     &.reconnecting {
-        background: #e8f0fe;
+        background: var(--mat-sys-secondary-container);
+        color: var(--mat-sys-on-secondary-container);
         color: var(--mat-sys-primary);
     }
 

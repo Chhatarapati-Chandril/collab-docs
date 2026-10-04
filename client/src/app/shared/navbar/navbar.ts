@@ -7,8 +7,10 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { Auth } from '../../core/services/auth';
 import { Notifications } from '../../core/services/notifications';
+import { ThemeService } from '../../core/services/theme';
 import { ConfirmDialog, ConfirmDialogData } from '../confirm-dialog/confirm-dialog';
 import { getColorForUser, getInitial } from '../utils/avatar.util';
 
@@ -23,6 +25,7 @@ import { getColorForUser, getInitial } from '../utils/avatar.util';
         MatMenuModule,
         MatBadgeModule,
         MatDividerModule,
+        MatButtonToggleModule,
     ],
     templateUrl: './navbar.html',
     styleUrl: './navbar.scss',
@@ -32,6 +35,7 @@ export class Navbar implements OnInit {
     private notificationsService = inject(Notifications);
     private router = inject(Router);
     private dialog = inject(MatDialog);
+    readonly themeService = inject(ThemeService);
 
     readonly user = this.authService.user;
     readonly userDisplayName = computed(() => this.user()?.displayName ?? '');

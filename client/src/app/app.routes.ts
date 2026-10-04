@@ -9,11 +9,6 @@ export const routes: Routes = [
         canActivate: [noAuthGuard],
     },
     {
-        path: 'register',
-        loadComponent: () => import('./pages/register/register').then((m) => m.Register),
-        canActivate: [noAuthGuard],
-    },
-    {
         path: '',
         loadComponent: () => import('./layout/shell/shell').then((m) => m.Shell),
         canActivate: [authGuard],

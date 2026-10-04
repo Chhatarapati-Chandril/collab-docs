@@ -1,56 +1,60 @@
-import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Component, inject, AfterViewInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatIconModule } from '@angular/material/icon';
 import { Auth } from '../../core/services/auth';
+import { Notifier } from '../../shared/services/notifier';
 import { extractErrorMessage } from '../../core/utils/http-error.util';
+import { environment } from '../../../environments/environment';
+import { NOTIFIER_CONSTANTS } from '../../shared/services/notifier.constants';
+import { getColorForUser } from '../../shared/utils/avatar.util';
+import { ThemeService } from '../../core/services/theme';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [
-        ReactiveFormsModule,
-        RouterLink,
-        MatCardModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        MatProgressSpinnerModule,
-    ],
+    imports: [MatButtonToggleModule, MatIconModule],
     templateUrl: './login.html',
-    styleUrl: '../../shared/styles/auth.scss',
+    styleUrl: './login.scss',
 })
-export class Login {
-    private fb = inject(FormBuilder);
+export class Login implements AfterViewInit {
     private authService = inject(Auth);
     private router = inject(Router);
+    private notifier = inject(Notifier);
+    readonly themeService = inject(ThemeService);
 
-    isLoading = signal(false);
-    errorMessage = signal<string | null>(null);
+    readonly getColorForUser = getColorForUser;
 
-    loginForm = this.fb.group({
-        email: ['', [Validators.required, Validators.email]],
-        password: ['', Validators.required],
-    });
+    ngAfterViewInit(): void {
+        if (typeof google === 'undefined' || !google?.accounts?.id) {
+            this.notifier.showError(NOTIFIER_CONSTANTS.genericErrorMessage);
+            return;
+        }
 
-    onSubmit(): void {
-        if (this.loginForm.invalid) return;
+        google.accounts.id.initialize({
+            client_id: environment.GOOGLE_CLIENT_ID,
+            callback: (response: google.accounts.id.CredentialResponse) =>
+                this.handleGoogleLogin(response),
+        });
 
-        this.isLoading.set(true);
-        this.errorMessage.set(null);
+        const container = document.getElementById('googleButtonContainer');
+        if (container) {
+            google.accounts.id.renderButton(container, {
+                theme: 'filled_black',
+                size: 'large',
+                width: 300,
+                type: 'standard',
+            });
+        }
+    }
 
-        const { email, password } = this.loginForm.getRawValue();
-
+    private handleGoogleLogin(response: google.accounts.id.CredentialResponse): void {
         this.authService
-            .login({ email: email!, password: password! })
+            .googleLogin(response.credential)
             .then(() => this.router.navigate(['/home']))
-            .catch((err) => {
-                this.errorMessage.set(extractErrorMessage(err, 'Login failed. Please try again.'));
-            })
-            .finally(() => this.isLoading.set(false));
+            .catch((err: unknown) => {
+                const msg = extractErrorMessage(err);
+                this.notifier.showError(msg);
+            });
     }
 }

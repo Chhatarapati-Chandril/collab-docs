@@ -1,14 +1,17 @@
 .app-toolbar {
     background-color: var(--mat-sys-surface);
+    position: sticky;
+    top: 0;
+    z-index: 100;
     color: var(--mat-sys-on-surface);
     border-bottom: 1px solid var(--mat-sys-surface-container-highest);
     padding: 0 32px; // Match right and left padding
     height: 64px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02); // very minimal shadow
+    box-shadow: 0 1px 2px var(--mat-sys-shadow, rgba(0, 0, 0, 0.1)); // very minimal shadow
 }
 
 .brand {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     font-weight: 500;
     font-size: 26px;
@@ -53,7 +56,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #ffffff;
     font-size: 20px;
     font-weight: 500;
 }
@@ -79,4 +82,11 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.trigger-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
 }

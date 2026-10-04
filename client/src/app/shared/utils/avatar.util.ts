@@ -36,5 +36,5 @@ export function getColorForUser(identifier: string): string {
  */
 export function getColorForId(identifier: string): string {
     if (!identifier) return 'var(--mat-sys-surface-container-highest)';
-    return `hsl(${getHue(identifier)}, 40%, 92%)`;
+    return `hsl(${getHue(identifier)}, 40%, var(--doc-bg-lightness, 92%))`;
 }

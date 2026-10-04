@@ -1,0 +1,16 @@
+name: Keep Backend and Database Alive
+
+on:
+  schedule:
+    # Every 10 minutes — comfortably under Render's free-tier idle timeout,
+    # and frequent enough to keep Supabase from flagging the project inactive
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # lets you trigger it manually from the Actions tab too
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend health endpoint
+        run: |
+          curl -sf "${{ secrets.BACKEND_HEALTH_URL }}" || echo "Ping failed — service may be cold-starting"

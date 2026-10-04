@@ -11,6 +11,8 @@ import { Auth } from './core/services/auth';
 import { AppBootstrap, SPLASH_SCREEN_MIN_DISPLAY_MS } from './core/services/app-bootstrap';
 import { appLogger } from './core/utils/app-logger.util';
 
+import { ThemeService } from './core/services/theme';
+
 export const appConfig: ApplicationConfig = {
     providers: [
         provideRouter(routes),
@@ -19,6 +21,9 @@ export const appConfig: ApplicationConfig = {
         provideAppInitializer(() => {
             const authService = inject(Auth);
             const bootstrap = inject(AppBootstrap);
+            const themeService = inject(ThemeService);
+
+            themeService.initializeTheme();
 
             appLogger.info('Connecting to backend...');
             const startTime = Date.now();

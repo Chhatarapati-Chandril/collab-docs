@@ -8,6 +8,8 @@ const userSelect = {
     id: true,
     email: true,
     displayName: true,
+    googleId: true,
+    avatarUrl: true,
     createdAt: true,
     updatedAt: true,
 };

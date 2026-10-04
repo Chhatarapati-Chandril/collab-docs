@@ -15,7 +15,7 @@
     &:hover {
         box-shadow: var(--mat-sys-level3);
         border-color: var(--mat-sys-primary);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 4px 12px var(--mat-sys-shadow, rgba(0, 0, 0, 0.1));
     }
 }
 
@@ -30,7 +30,7 @@
 }
 
 .doc-watermark {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Fraunces', Georgia, serif;
     font-size: 80px;
     font-weight: 700;
     line-height: 1;
@@ -127,7 +127,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #ffffff;
     font-size: 10px;
     font-weight: 500;
 }
@@ -187,7 +187,7 @@
 }
 
 .list-watermark {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Fraunces', Georgia, serif;
     font-size: 24px;
     font-weight: 700;
     line-height: 1;
