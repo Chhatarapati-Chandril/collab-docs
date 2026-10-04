@@ -1,4 +1,4 @@
-import { Component, inject, AfterViewInit } from '@angular/core';
+import { Component, inject, AfterViewInit, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,7 +8,7 @@ import { extractErrorMessage } from '../../core/utils/http-error.util';
 import { environment } from '../../../environments/environment';
 import { NOTIFIER_CONSTANTS } from '../../shared/services/notifier.constants';
 import { getColorForUser } from '../../shared/utils/avatar.util';
-import { ThemeService } from '../../core/services/theme';
+import { ThemeService, ThemeType } from '../../core/services/theme';
 
 @Component({
     selector: 'app-login',
@@ -25,6 +25,15 @@ export class Login implements AfterViewInit {
 
     readonly getColorForUser = getColorForUser;
 
+    private isGoogleInitialized = false;
+
+    constructor() {
+        effect(() => {
+            const theme = this.themeService.themeSig();
+            this.tryRenderGoogleButton(theme);
+        });
+    }
+
     ngAfterViewInit(): void {
         if (typeof google === 'undefined' || !google?.accounts?.id) {
             this.notifier.showError(NOTIFIER_CONSTANTS.genericErrorMessage);
@@ -37,10 +46,24 @@ export class Login implements AfterViewInit {
                 this.handleGoogleLogin(response),
         });
 
+        this.isGoogleInitialized = true;
+        this.tryRenderGoogleButton(this.themeService.themeSig());
+    }
+
+    private tryRenderGoogleButton(theme: ThemeType): void {
+        if (!this.isGoogleInitialized) return;
+
         const container = document.getElementById('googleButtonContainer');
-        if (container) {
+        if (container && typeof google !== 'undefined' && google?.accounts?.id) {
+            const isDark =
+                theme === 'dark' ||
+                (theme === 'system' &&
+                    window.matchMedia &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+            // Re-rendering on the same container automatically clears the previous button
             google.accounts.id.renderButton(container, {
-                theme: 'filled_black',
+                theme: isDark ? 'filled_blue' : 'filled_black',
                 size: 'large',
                 width: 300,
                 type: 'standard',
