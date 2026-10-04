@@ -15,7 +15,7 @@
         transform: translateY(-4px);
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
         border-color: color-mix(in srgb, var(--mat-sys-primary) 40%, transparent);
-        
+
         .card-preview {
             border-bottom-color: color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
         }
@@ -30,21 +30,25 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    
+
     &::before {
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.4) 0%,
+            rgba(255, 255, 255, 0) 100%
+        );
         z-index: 0;
         pointer-events: none;
     }
-    
+
     &::after {
         content: '';
         position: absolute;
         inset: 0;
-        background-image: radial-gradient(rgba(0,0,0,0.05) 1px, transparent 1px);
+        background-image: radial-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px);
         background-size: 12px 12px;
         z-index: 0;
         pointer-events: none;
@@ -53,11 +57,11 @@
 
 [data-theme='dark'] .card-preview::before,
 :host-context([data-theme='dark']) .card-preview::before {
-    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
 }
 [data-theme='dark'] .card-preview::after,
 :host-context([data-theme='dark']) .card-preview::after {
-    background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
 }
 
 .doc-watermark {
@@ -219,12 +223,16 @@
     flex-shrink: 0;
     position: relative;
     overflow: hidden;
-    
+
     &::before {
         content: '';
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%);
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.4) 0%,
+            rgba(255, 255, 255, 0) 100%
+        );
         z-index: 0;
         pointer-events: none;
     }
@@ -232,7 +240,7 @@
 
 [data-theme='dark'] .list-avatar::before,
 :host-context([data-theme='dark']) .list-avatar::before {
-    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
 }
 
 .list-watermark {
