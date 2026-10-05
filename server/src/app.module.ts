@@ -15,6 +15,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { RATE_LIMIT_MAX_REQUESTS, RATE_LIMIT_TTL } from './common/constants/app.constants';
+import { HealthModule } from './health/health.module';
 
 @Module({
     imports: [
@@ -28,6 +29,7 @@ import { RATE_LIMIT_MAX_REQUESTS, RATE_LIMIT_TTL } from './common/constants/app.
                 limit: RATE_LIMIT_MAX_REQUESTS,
             },
         ]),
+        HealthModule,
         MyLoggerModule,
         PrismaModule,
         AuthModule,

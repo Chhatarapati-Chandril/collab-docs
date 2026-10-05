@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-    getHello(): string {
-        return 'Hello World!';
+    getApplicationInfo() {
+        return {
+            name: 'CollabDocs API',
+            version: process.env.APP_VERSION ?? '1.0.0',
+            environment: process.env.NODE_ENV ?? 'development',
+        };
     }
 }
