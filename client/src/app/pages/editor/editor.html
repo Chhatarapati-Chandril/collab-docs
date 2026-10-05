@@ -45,6 +45,18 @@
             }
         </button>
 
+        @if (role() === 'OWNER') {
+            <button
+                mat-flat-button
+                color="primary"
+                (click)="openShareDialog()"
+                style="margin-right: 16px; border-radius: 100px"
+            >
+                <mat-icon>person_add</mat-icon>
+                Share
+            </button>
+        }
+
         <app-presence-bar />
 
         <mat-chip [class]="'status-' + connectionStatus()">

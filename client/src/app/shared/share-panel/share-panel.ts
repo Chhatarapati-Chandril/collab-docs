@@ -1,5 +1,12 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ErrorStateMatcher } from '@angular/material/core';
+
+export class NoErrorMatcher implements ErrorStateMatcher {
+    isErrorState(): boolean {
+        return false;
+    }
+}
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,6 +31,7 @@ import { getInitial, getColorForUser } from '../utils/avatar.util';
 
 export interface SharePanelData {
     document: Document;
+    isOwner?: boolean;
 }
 
 @Component({
@@ -56,6 +64,7 @@ export class SharePanel implements OnInit, OnDestroy {
 
     readonly getInitial = getInitial;
     readonly getColorForUser = getColorForUser;
+    readonly noErrorMatcher = new NoErrorMatcher();
 
     // Manage access state
     readonly documentUsers = signal<DocPermissionUser[]>([]);

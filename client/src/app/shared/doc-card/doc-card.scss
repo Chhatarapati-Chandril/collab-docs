@@ -104,6 +104,10 @@
     opacity: 1;
 }
 
+.menu-container.force-visible {
+    opacity: 1 !important;
+}
+
 .card-strip {
     padding: 20px;
     background-color: var(--mat-sys-surface-container-lowest);

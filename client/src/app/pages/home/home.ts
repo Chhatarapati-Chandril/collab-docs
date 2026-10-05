@@ -115,16 +115,28 @@ export class Home implements OnInit {
 
         dialogRef.afterClosed().subscribe(async (newTitle) => {
             if (newTitle && newTitle !== doc.title) {
-                await this.docsService.updateDocument(doc.id, { title: newTitle });
-                this.loadDocuments();
+                // Optimistic UI Update
+                this.allDocuments.update((docs) =>
+                    docs.map((d) => (d.id === doc.id ? { ...d, title: newTitle } : d)),
+                );
+
+                try {
+                    await this.docsService.updateDocument(doc.id, { title: newTitle });
+                } catch {
+                    // Revert on error
+                    this.allDocuments.update((docs) =>
+                        docs.map((d) => (d.id === doc.id ? { ...d, title: doc.title } : d)),
+                    );
+                }
             }
         });
     }
 
     onShare(doc: Document): void {
         this.dialog.open<SharePanel, SharePanelData>(SharePanel, {
-            data: { document: doc },
-            width: '480px',
+            data: { document: doc, isOwner: (doc as DocumentWithOwnership).isOwner },
+            width: '800px',
+            maxWidth: '90vw',
         });
     }
 

@@ -17,12 +17,14 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialog } from '@angular/material/dialog';
 import { QuillEditorComponent, QuillModules } from 'ngx-quill';
 import Quill from 'quill';
 import QuillCursors from 'quill-cursors';
 import { QuillBinding } from 'y-quill';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { Auth } from '../../core/services/auth';
 import { Docs } from '../../core/services/docs';
 import { Collab } from '../../core/services/collab';
 import { Share } from '../../core/services/share';
@@ -33,6 +35,7 @@ import { Notifier } from '../../shared/services/notifier';
 import { EDITOR_CONSTANTS } from './editor.constants';
 import { PresenceBar } from '../../shared/presence-bar/presence-bar';
 import { OfflineIndicator } from '../../shared/offline-indicator/offline-indicator';
+import { SharePanel, SharePanelData } from '../../shared/share-panel/share-panel';
 
 Quill.register('modules/cursors', QuillCursors);
 
@@ -163,14 +166,21 @@ export class Editor implements OnInit, OnDestroy {
         if (!this.isEditingTitle()) return; // guard: blur fires after Enter — skip if already committed
         this.isEditingTitle.set(false);
         const newTitle = this.titleControl.value.trim();
-        const currentTitle = this.document()?.title ?? '';
+        const currentDocument = this.document();
+        const currentTitle = currentDocument?.title ?? '';
+
         if (newTitle && newTitle !== currentTitle) {
+            // Optimistic UI Update
+            this.document.update((doc) => (doc ? { ...doc, title: newTitle } : null));
+
             try {
                 const updated = await this.docsService.updateDocument(this.docId, {
                     title: newTitle,
                 });
                 this.document.set(updated);
             } catch {
+                // Revert on error
+                this.document.update((doc) => (doc ? { ...doc, title: currentTitle } : null));
                 appLogger.error(EDITOR_CONSTANTS.renameErrorLog);
             }
         }
@@ -191,6 +201,22 @@ export class Editor implements OnInit, OnDestroy {
 
     private shareService = inject(Share);
     private notifier = inject(Notifier);
+    private dialog = inject(MatDialog);
+    private authService = inject(Auth);
+
+    openShareDialog(): void {
+        const doc = this.document();
+        if (!doc) return;
+
+        this.dialog.open<SharePanel, SharePanelData>(SharePanel, {
+            data: {
+                document: doc,
+                isOwner: doc.ownerId === this.authService.user()?.id,
+            },
+            width: '800px',
+            maxWidth: '90vw',
+        });
+    }
 
     async downloadPdf(): Promise<void> {
         // Target ONLY the content area (.ql-editor), bypassing the toolbar entirely

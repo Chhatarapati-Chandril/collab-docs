@@ -13,6 +13,7 @@ import { MyLoggerService } from '../my-logger/my-logger.service';
 import { ResolveAccessRequestDto } from './dto/resolve-access-request.dto';
 import { SHARE_CONSTANTS } from '../common/constants/share.constants';
 import { CollabGateway } from '../collab/collab.gateway';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 @Injectable()
 export class ShareService {
@@ -20,6 +21,7 @@ export class ShareService {
         private readonly prisma: PrismaService,
         private readonly logger: MyLoggerService,
         private readonly collabGateway: CollabGateway,
+        private readonly notificationsGateway: NotificationsGateway,
     ) {}
 
     async shareViaEmail(requesterId: string, dto: ShareEmailDto) {
@@ -70,7 +72,7 @@ export class ShareService {
         });
 
         // 5. Create a notification for the target user so it shows up in their UI
-        await this.prisma.notification.create({
+        const notification = await this.prisma.notification.create({
             data: {
                 type: NotificationType.PERMISSION_CHANGED,
                 docId,
@@ -78,7 +80,13 @@ export class ShareService {
                 toUserId: targetUser.id,
                 meta: { grantedPermission: permission },
             },
+            include: {
+                document: { select: { id: true, title: true } },
+                fromUser: { select: { id: true, displayName: true, email: true } },
+            },
         });
+
+        this.notificationsGateway.sendNotification(targetUser.id, notification);
 
         return docPermission;
     }
@@ -124,7 +132,13 @@ export class ShareService {
                 toUserId: document.ownerId,
                 meta: { requestedPermission: permission },
             },
+            include: {
+                document: { select: { id: true, title: true } },
+                fromUser: { select: { id: true, displayName: true, email: true } },
+            },
         });
+
+        this.notificationsGateway.sendNotification(document.ownerId, notification);
 
         return notification;
     }
@@ -155,7 +169,7 @@ export class ShareService {
             await this.collabGateway.revokeDocumentAccess(targetUserId, docId);
 
             // Notify the user that their access was revoked
-            await this.prisma.notification.create({
+            const notification = await this.prisma.notification.create({
                 data: {
                     type: NotificationType.PERMISSION_CHANGED,
                     docId,
@@ -163,7 +177,12 @@ export class ShareService {
                     toUserId: targetUserId,
                     meta: { grantedPermission: 'REMOVED' },
                 },
+                include: {
+                    document: { select: { id: true, title: true } },
+                    fromUser: { select: { id: true, displayName: true, email: true } },
+                },
             });
+            this.notificationsGateway.sendNotification(targetUserId, notification);
         } catch (error) {
             // Prisma throws if the record to delete doesn't exist
             this.logger.error(
@@ -206,7 +225,7 @@ export class ShareService {
             });
 
             // Notify the requester that they were granted access
-            await this.prisma.notification.create({
+            const newNotif = await this.prisma.notification.create({
                 data: {
                     type: NotificationType.PERMISSION_CHANGED,
                     docId: notification.docId,
@@ -214,7 +233,12 @@ export class ShareService {
                     toUserId: notification.fromUserId,
                     meta: { grantedPermission: dto.grantedPermission },
                 },
+                include: {
+                    document: { select: { id: true, title: true } },
+                    fromUser: { select: { id: true, displayName: true, email: true } },
+                },
             });
+            this.notificationsGateway.sendNotification(notification.fromUserId, newNotif);
         }
 
         // 3. Mark the original request as read and save the resolution state

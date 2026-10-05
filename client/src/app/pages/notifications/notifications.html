@@ -1,6 +1,12 @@
 <div class="notifications-page">
     <div class="header">
         <h1>{{ CONSTANTS.title }}</h1>
+        @if (needsPermission()) {
+            <button mat-stroked-button color="primary" (click)="requestPermission()">
+                <mat-icon>notifications_active</mat-icon>
+                Enable Desktop Notifications
+            </button>
+        }
     </div>
 
     @if (isLoading()) {

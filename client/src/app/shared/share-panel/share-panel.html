@@ -2,58 +2,60 @@
 
 <mat-dialog-content class="share-panel-content">
     <!-- Add People Form -->
-    <div class="section-title">{{ SHARE_PANEL_CONSTANTS.addPeopleLabel }}</div>
+    @if (data.isOwner) {
+        <div class="section-title">{{ SHARE_PANEL_CONSTANTS.addPeopleLabel }}</div>
 
-    <form [formGroup]="shareForm" (ngSubmit)="onShareSubmit()" class="share-form">
-        <mat-form-field appearance="outline" class="email-field">
-            <input
-                matInput
-                formControlName="email"
-                type="email"
-                [placeholder]="SHARE_PANEL_CONSTANTS.emailPlaceholder"
-                [matAutocomplete]="auto"
-                (input)="shareError.set(null)"
-            />
-            <mat-autocomplete #auto="matAutocomplete">
-                @for (user of suggestedUsers(); track user.id) {
-                    <mat-option [value]="user.email">
-                        <div class="user-suggestion">
-                            <span class="user-name">{{ user.displayName }}</span>
-                            <span class="user-email">({{ user.email }})</span>
-                        </div>
-                    </mat-option>
+        <form [formGroup]="shareForm" (ngSubmit)="onShareSubmit()" class="share-form">
+            <mat-form-field appearance="outline" class="email-field">
+                <input
+                    matInput
+                    formControlName="email"
+                    type="email"
+                    [placeholder]="SHARE_PANEL_CONSTANTS.emailPlaceholder"
+                    [matAutocomplete]="auto"
+                    [errorStateMatcher]="noErrorMatcher"
+                    (input)="shareError.set(null)"
+                />
+                <mat-autocomplete #auto="matAutocomplete">
+                    @for (user of suggestedUsers(); track user.id) {
+                        <mat-option [value]="user.email">
+                            <div class="user-suggestion">
+                                <span class="user-name">{{ user.displayName }}</span>
+                                <span class="user-email">({{ user.email }})</span>
+                            </div>
+                        </mat-option>
+                    }
+                </mat-autocomplete>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="role-field">
+                <mat-select formControlName="permission">
+                    <mat-option value="EDITOR">{{ SHARE_PANEL_CONSTANTS.roles.EDITOR }}</mat-option>
+                    <mat-option value="VIEWER">{{ SHARE_PANEL_CONSTANTS.roles.VIEWER }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <button
+                mat-flat-button
+                color="primary"
+                type="submit"
+                [disabled]="shareForm.invalid || isSharing()"
+                class="share-button"
+            >
+                @if (isSharing()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                } @else {
+                    Share
                 }
-            </mat-autocomplete>
-        </mat-form-field>
+            </button>
+        </form>
 
-        <mat-form-field appearance="outline" class="role-field">
-            <mat-select formControlName="permission">
-                <mat-option value="EDITOR">{{ SHARE_PANEL_CONSTANTS.roles.EDITOR }}</mat-option>
-                <mat-option value="VIEWER">{{ SHARE_PANEL_CONSTANTS.roles.VIEWER }}</mat-option>
-            </mat-select>
-        </mat-form-field>
+        @if (shareError()) {
+            <div class="error-text">{{ shareError() }}</div>
+        }
 
-        <button
-            mat-flat-button
-            color="primary"
-            type="submit"
-            [disabled]="shareForm.invalid || isSharing()"
-            class="share-button"
-        >
-            @if (isSharing()) {
-                <mat-spinner diameter="20"></mat-spinner>
-            } @else {
-                Share
-            }
-        </button>
-    </form>
-
-    @if (shareError()) {
-        <div class="error-text">{{ shareError() }}</div>
+        <div class="divider"></div>
     }
-
-    <!-- Manage Access Section -->
-    <div class="divider"></div>
 
     <div class="manage-access-section">
         <div class="section-title">{{ SHARE_PANEL_CONSTANTS.manageAccessLabel }}</div>
@@ -81,6 +83,7 @@
                         <mat-select
                             [value]="docUser.permission"
                             (selectionChange)="changeUserPermission(docUser, $event.value)"
+                            [disabled]="!data.isOwner"
                         >
                             <mat-option value="EDITOR">{{
                                 SHARE_PANEL_CONSTANTS.roles.EDITOR
@@ -90,14 +93,16 @@
                             }}</mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <button
-                        mat-icon-button
-                        class="revoke-button"
-                        (click)="revokeUserAccess(docUser)"
-                        title="Remove access"
-                    >
-                        <mat-icon>close</mat-icon>
-                    </button>
+                    @if (data.isOwner) {
+                        <button
+                            mat-icon-button
+                            class="revoke-button"
+                            (click)="revokeUserAccess(docUser)"
+                            title="Remove access"
+                        >
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    }
                 </div>
             }
             @if (documentUsers().length === 0) {
@@ -121,7 +126,7 @@
                 <mat-select
                     [value]="publicAccess() || 'RESTRICTED'"
                     (selectionChange)="onPublicAccessChange($event.value)"
-                    [disabled]="isUpdatingAccess()"
+                    [disabled]="isUpdatingAccess() || !data.isOwner"
                 >
                     <mat-option value="RESTRICTED">{{
                         SHARE_PANEL_CONSTANTS.restrictedLabel

@@ -16,6 +16,8 @@ import { getColorForUser, getInitial } from '../../shared/utils/avatar.util';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 @Component({
     selector: 'app-notifications',
     standalone: true,
@@ -46,6 +48,20 @@ export class Notifications implements OnInit {
     readonly error = signal<string | null>(null);
     readonly unreadCount = this.notificationsService.unreadCount;
     readonly grantedPermissions = signal<Record<string, string>>({});
+    readonly needsPermission = signal<boolean>(
+        'Notification' in window && Notification.permission === 'default',
+    );
+
+    constructor() {
+        this.notificationsService.newNotification$.pipe(takeUntilDestroyed()).subscribe((notif) => {
+            this.notifications.update((list) => [notif, ...list]);
+        });
+    }
+
+    async requestPermission() {
+        await this.notificationsService.requestNotificationPermission();
+        this.needsPermission.set('Notification' in window && Notification.permission === 'default');
+    }
 
     ngOnInit(): void {
         this.loadNotifications();

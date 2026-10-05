@@ -35,6 +35,8 @@ export class DocCard {
     @Output() copyDoc = new EventEmitter<string>();
     @Output() delete = new EventEmitter<string>();
 
+    isMenuOpen = false;
+
     readonly getColorForUser = getColorForUser;
     readonly getColorForId = getColorForId;
     readonly getInitial = getInitial;

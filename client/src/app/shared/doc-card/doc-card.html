@@ -14,10 +14,12 @@
             }
 
             <!-- Actions Menu button overlay -->
-            <div class="menu-container">
+            <div class="menu-container" [class.force-visible]="isMenuOpen">
                 <button
                     mat-icon-button
                     [matMenuTriggerFor]="docMenu"
+                    (menuOpened)="isMenuOpen = true"
+                    (menuClosed)="isMenuOpen = false"
                     (click)="$event.stopPropagation()"
                 >
                     <mat-icon>more_vert</mat-icon>
@@ -101,10 +103,12 @@
             </div>
         </div>
 
-        <div class="list-actions">
+        <div class="list-actions" [class.force-visible]="isMenuOpen">
             <button
                 mat-icon-button
                 [matMenuTriggerFor]="docMenu"
+                (menuOpened)="isMenuOpen = true"
+                (menuClosed)="isMenuOpen = false"
                 (click)="$event.stopPropagation()"
             >
                 <mat-icon>more_vert</mat-icon>
