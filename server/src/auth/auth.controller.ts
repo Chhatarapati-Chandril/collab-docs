@@ -29,6 +29,16 @@ export class AuthController {
         private readonly configService: ConfigService,
     ) {}
 
+    private getCookieOptions(): import('express').CookieOptions {
+        const isProduction = process.env.NODE_ENV === 'production';
+        return {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'strict',
+            path: '/',
+        };
+    }
+
     @Post('google')
     @HttpCode(HttpStatus.OK)
     @Serialize(LoginResponseDto)
@@ -43,9 +53,7 @@ export class AuthController {
         );
 
         response.cookie('refreshToken', result.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            ...this.getCookieOptions(),
             maxAge: refreshTokenExpiresInDays * 24 * 60 * 60 * 1000,
         });
 
@@ -78,9 +86,7 @@ export class AuthController {
         );
 
         response.cookie('refreshToken', result.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            ...this.getCookieOptions(),
             maxAge: refreshTokenExpiresInDays * 24 * 60 * 60 * 1000,
         });
 
@@ -102,11 +108,7 @@ export class AuthController {
             await this.authService.logout(refreshToken);
         }
 
-        response.clearCookie('refreshToken', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-        });
+        response.clearCookie('refreshToken', this.getCookieOptions());
 
         return new ApiResponse({
             statusCode: HttpStatus.OK,

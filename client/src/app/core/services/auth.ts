@@ -71,6 +71,10 @@ export class Auth {
         );
         this.accessTokenSig.set(null);
         this.userSig.set(null);
+
+        if (typeof google !== 'undefined' && google?.accounts?.id) {
+            google.accounts.id.disableAutoSelect();
+        }
     }
 
     async fetchProfile(): Promise<User> {
