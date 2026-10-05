@@ -19,6 +19,12 @@ html {
 @media (prefers-color-scheme: dark) {
     html:not([data-theme='light']) {
         --doc-bg-lightness: 20%;
+        --doc-card-glass-grad: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            rgba(255, 255, 255, 0) 100%
+        );
+        --doc-card-glass-dots: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
         @include mat.theme(
             (
                 color: (
@@ -38,6 +44,12 @@ html {
 
 html[data-theme='dark'] {
     --doc-bg-lightness: 20%;
+    --doc-card-glass-grad: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    --doc-card-glass-dots: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
     @include mat.theme(
         (
             color: (
@@ -66,6 +78,12 @@ body {
     --mdc-snackbar-container-color: var(--mat-sys-error);
     --mdc-snackbar-supporting-text-color: var(--mat-sys-on-error);
     --mat-snack-bar-button-color: var(--mat-sys-on-error);
+    --mdc-snackbar-action-label-text-color: var(--mat-sys-on-error);
+
+    .mat-mdc-snack-bar-action,
+    .mat-mdc-button.mat-mdc-snack-bar-action {
+        color: var(--mat-sys-on-error) !important;
+    }
 }
 
 .success-snackbar {
@@ -73,4 +91,44 @@ body {
     --mdc-snackbar-container-color: #1e8e3e;
     --mdc-snackbar-supporting-text-color: #ffffff;
     --mat-snack-bar-button-color: #ffffff;
+    --mdc-snackbar-action-label-text-color: #ffffff;
+
+    .mat-mdc-snack-bar-action,
+    .mat-mdc-button.mat-mdc-snack-bar-action {
+        color: #ffffff !important;
+    }
+}
+
+/* Smooth Theme Transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+    display: block;
+}
+
+::view-transition-old(root) {
+    z-index: 1;
+}
+
+::view-transition-new(root) {
+    z-index: 2;
+    /* Ultra-smooth standard easing for circular reveals */
+    animation: wipe-circle 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes wipe-circle {
+    0% {
+        /* Start from top right where the theme toggle is */
+        clip-path: circle(0px at calc(100% - 60px) 40px);
+    }
+    100% {
+        clip-path: circle(150% at calc(100% - 60px) 40px);
+    }
+}
+
+/* Custom Text Selection */
+::selection {
+    background-color: #ff9e80;
+    color: #1a1a1a;
 }
