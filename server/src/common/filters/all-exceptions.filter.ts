@@ -1,10 +1,17 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { Request, Response } from 'express';
+
 import { MyLoggerService } from '../../my-logger/my-logger.service';
+
+import { createExceptionResponse } from './exception-response';
+
+import { getExceptionStack } from './exception-utils';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
+    private readonly isProduction = process.env.NODE_ENV === 'production';
+
     constructor(
         private readonly httpAdapterHost: HttpAdapterHost,
         private readonly logger: MyLoggerService,
@@ -15,40 +22,50 @@ export class AllExceptionsFilter implements ExceptionFilter {
     catch(exception: unknown, host: ArgumentsHost): void {
         const { httpAdapter } = this.httpAdapterHost;
 
-        const ctx = host.switchToHttp();
-        const request = ctx.getRequest<Request>();
-        const response = ctx.getResponse<Response>();
+        const context = host.switchToHttp();
 
-        const httpStatus =
-            exception instanceof HttpException
-                ? exception.getStatus()
-                : HttpStatus.INTERNAL_SERVER_ERROR;
+        const request = context.getRequest<Request>();
 
-        const exceptionResponse =
-            exception instanceof HttpException
-                ? exception.getResponse()
-                : {
-                      message:
-                          exception instanceof Error ? exception.message : 'Internal server error',
-                  };
+        const response = context.getResponse<Response>();
 
-        // Explicitly cast the path to a string to satisfy strict lint rules
         const path = String(httpAdapter.getRequestUrl(request));
 
-        const responseBody = {
-            statusCode: httpStatus,
+        const exceptionResponse = createExceptionResponse(exception, this.isProduction);
+
+        const stack = getExceptionStack(exception);
+
+        this.logger.error(`HTTP ${exceptionResponse.statusCode} ${request.method} ${path}`, stack);
+
+        const responseBody = this.isProduction
+            ? this.createProductionResponse(exceptionResponse)
+            : this.createDevelopmentResponse(exceptionResponse, path);
+
+        httpAdapter.reply(response, responseBody, exceptionResponse.statusCode);
+    }
+
+    private createProductionResponse(
+        exceptionResponse: ReturnType<typeof createExceptionResponse>,
+    ) {
+        return {
+            statusCode: exceptionResponse.statusCode,
+            message: exceptionResponse.message,
+        };
+    }
+
+    private createDevelopmentResponse(
+        exceptionResponse: ReturnType<typeof createExceptionResponse>,
+        path: string,
+    ) {
+        return {
+            statusCode: exceptionResponse.statusCode,
+            message: exceptionResponse.message,
+            ...(exceptionResponse.error
+                ? {
+                      error: exceptionResponse.error,
+                  }
+                : {}),
             timestamp: new Date().toISOString(),
             path,
-            error:
-                typeof exceptionResponse === 'object' && exceptionResponse !== null
-                    ? exceptionResponse
-                    : { message: exceptionResponse },
         };
-
-        const stack = exception instanceof Error ? exception.stack : undefined;
-
-        this.logger.error(`HTTP Status: ${httpStatus} - Path: ${path}`, stack);
-
-        httpAdapter.reply(response, responseBody, httpStatus);
     }
 }

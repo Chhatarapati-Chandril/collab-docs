@@ -8,6 +8,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { SWAGGER_PATH } from './common/constants/app.constants';
 
 async function bootstrap() {
+    const isProduction = process.env.NODE_ENV === 'production';
     const logger = new MyLoggerService();
 
     const app = await NestFactory.create(AppModule, {
@@ -43,23 +44,28 @@ async function bootstrap() {
         }),
     );
 
-    // Register the Global Exception Filter with your custom logger
     const httpAdapterHost = app.get(HttpAdapterHost);
+
     app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost, logger));
 
-    const config = new DocumentBuilder()
-        .setTitle('CollabDocs API')
-        .setDescription('The REST API documentation for the CollabDocs project')
-        .setVersion('1.0')
-        .addBearerAuth()
-        .build();
+    if (!isProduction) {
+        const config = new DocumentBuilder()
+            .setTitle('CollabDocs API')
+            .setDescription('The REST API documentation for the CollabDocs project')
+            .setVersion('1.0')
+            .addBearerAuth()
+            .build();
 
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup(SWAGGER_PATH, app, document);
+        const document = SwaggerModule.createDocument(app, config);
+
+        SwaggerModule.setup(SWAGGER_PATH, app, document);
+    }
 
     const port = Number(process.env.PORT) || 3000;
+
     await app.listen(port);
 
     logger.log(`Application is running on port ${port}`, 'Bootstrap');
 }
+
 void bootstrap();
