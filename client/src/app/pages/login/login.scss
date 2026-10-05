@@ -102,9 +102,11 @@ $text-muted: var(--mat-sys-on-surface-variant);
     justify-content: center;
     align-items: center;
     width: fit-content;
+    background: transparent;
 
     #googleButtonContainer {
         min-height: 40px; /* Prevent layout shift */
+        background: transparent;
     }
 }
 
