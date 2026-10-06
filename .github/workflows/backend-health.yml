@@ -1,0 +1,57 @@
+name: Production Health Monitor
+
+on:
+  schedule:
+    # Runs every 10 minutes (standard clean interval)
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: production-health-check
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  HEALTH_URL: ${{ secrets.BACKEND_HEALTH_URL }}
+  CONNECT_TIMEOUT: 10
+  MAX_TIME: 30
+
+jobs:
+  health-check:
+    name: API & Database Probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Validate Secret
+        run: |
+          if [ -z "${HEALTH_URL}" ]; then
+            echo "::error::Secret BACKEND_HEALTH_URL is missing!"
+            exit 1
+          fi
+
+      - name: Send Health Probe
+        id: probe
+        run: |
+          set -euo pipefail
+
+          response_file=$(mktemp)
+          http_status=$(curl -s -S -L -w "%{http_code}" \
+            -o "$response_file" \
+            --connect-timeout "$CONNECT_TIMEOUT" \
+            --max-time "$MAX_TIME" \
+            "$HEALTH_URL" || echo "000")
+
+          echo "status_code=$http_status" >> "$GITHUB_OUTPUT"
+          echo "Response Body:"
+          cat "$response_file"
+          echo ""
+
+          if [ "$http_status" -ne 200 ]; then
+            echo "::error::Health check failed! Expected HTTP 200, got: $http_status"
+            exit 1
+          fi
+
+          echo "✅ Production service is online and healthy."

@@ -1,5 +1,8 @@
 import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+
 import { PrismaService } from '../prisma/prisma.service';
+import { HEALTH_CONSTANTS } from './health.constants';
+import { HealthComponent, HealthResponse } from './health.types';
 
 @Injectable()
 export class HealthService {
@@ -7,47 +10,63 @@ export class HealthService {
 
     constructor(private readonly prisma: PrismaService) {}
 
-    async check(): Promise<{
-        status: string;
-        timestamp: string;
-        db: { status: string; latencyMs: number };
-        uptime: number;
-    }> {
-        const timestamp = new Date().toISOString();
-        const uptime = Math.floor(process.uptime());
+    async check(): Promise<HealthResponse> {
+        const startedAt = performance.now();
 
-        const dbStart = Date.now();
+        const database = await this.checkDatabase();
+
+        const response: HealthResponse = {
+            status: database.status === 'ok' ? 'ok' : 'down',
+
+            service: HEALTH_CONSTANTS.SERVICE_NAME,
+
+            timestamp: new Date().toISOString(),
+
+            uptimeSeconds: Math.floor(process.uptime()),
+
+            checks: {
+                database,
+            },
+        };
+
+        const durationMs = Math.round(performance.now() - startedAt);
+
+        this.logger.log(
+            `Health check completed in ${durationMs}ms ` + `(database=${database.status})`,
+        );
+
+        if (response.status === 'down') {
+            throw new ServiceUnavailableException(response);
+        }
+
+        return response;
+    }
+
+    private async checkDatabase(): Promise<HealthComponent> {
+        const startedAt = performance.now();
+
         try {
-            // Cheapest possible read-only round-trip — touches no application tables,
-            // does not modify any data, and reliably exercises the connection pool.
             await this.prisma.$queryRaw`SELECT 1`;
-            const dbLatencyMs = Date.now() - dbStart;
 
-            this.logger.log(
-                `Health check passed — db latency: ${dbLatencyMs}ms, uptime: ${uptime}s`,
-            );
+            const latencyMs = Math.round(performance.now() - startedAt);
 
             return {
                 status: 'ok',
-                timestamp,
-                db: { status: 'ok', latencyMs: dbLatencyMs },
-                uptime,
+                latencyMs,
             };
-        } catch (error: unknown) {
-            const dbLatencyMs = Date.now() - dbStart;
-            const message = error instanceof Error ? error.message : String(error);
+        } catch (error) {
+            const latencyMs = Math.round(performance.now() - startedAt);
 
             this.logger.error(
-                `Health check FAILED — db unreachable after ${dbLatencyMs}ms: ${message}`,
+                `Database health check failed after ${latencyMs}ms`,
+                error instanceof Error ? error.stack : String(error),
             );
 
-            // 503 so curl -sf and monitoring tools treat this as a real failure
-            throw new ServiceUnavailableException({
-                status: 'error',
-                timestamp,
-                db: { status: 'error', latencyMs: dbLatencyMs, error: message },
-                uptime,
-            });
+            return {
+                status: 'down',
+                latencyMs,
+                error: 'Database unavailable',
+            };
         }
     }
 }
