@@ -9,6 +9,11 @@ export interface Document {
     createdAt: string;
     updatedAt: string;
 
+    // Cover image fields
+    coverImageUrl?: string | null;
+    coverPublicId?: string | null;
+    coverType?: string | null;
+
     // UI / Joined fields from backend
     _count?: { permissions: number };
     owner?: { id: string; displayName: string };

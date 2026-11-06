@@ -92,6 +92,15 @@
     ::ng-deep .mat-icon {
         margin-right: 8px;
     }
+
+    .dropdown-chevron {
+        margin-left: 4px !important;
+        margin-right: -4px !important;
+        font-size: 20px !important;
+        width: 20px !important;
+        height: 20px !important;
+        opacity: 0.85;
+    }
 }
 
 .doc-grid {

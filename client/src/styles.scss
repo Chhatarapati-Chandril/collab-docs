@@ -132,3 +132,12 @@ body {
     background-color: #ff9e80;
     color: #1a1a1a;
 }
+
+/* Cover Selection Dialog Styling */
+.cover-dialog-panel {
+    .mat-mdc-dialog-container .mat-mdc-dialog-surface {
+        border-radius: 16px !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+    }
+}

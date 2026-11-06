@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FAF6F0"/>
+      <stop offset="50%" stop-color="#F2ECE1"/>
+      <stop offset="100%" stop-color="#E5D9C8"/>
+    </linearGradient>
+    <linearGradient id="archGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#D8C8B4" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#C4B097" stop-opacity="0.95"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="70%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#FFFDF9" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#EADDCB" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#sun)"/>
+  <!-- Minimalist Architectural Arch -->
+  <path d="M 980 900 L 980 420 A 240 240 0 0 1 1460 420 L 1460 900 Z" fill="url(#archGrad)"/>
+  <circle cx="1220" cy="420" r="140" fill="#FAF6F0" opacity="0.6"/>
+  <!-- Elegant fine lines & geometry -->
+  <line x1="140" y1="120" x2="360" y2="120" stroke="#8E7D6B" stroke-width="2" stroke-linecap="round"/>
+  <line x1="140" y1="120" x2="140" y2="780" stroke="#8E7D6B" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="140" y="240" font-family="'Cinzel', 'Playfair Display', 'Georgia', serif" font-size="32" font-weight="400" letter-spacing="8" fill="#5A4E40">ZENITH</text>
+  <text x="140" y="280" font-family="'Inter', -apple-system, sans-serif" font-size="14" font-weight="500" letter-spacing="4" fill="#8E7D6B">ARCHITECTURAL ESSAYS &#8226; VOL. I</text>
+  <circle cx="140" cy="780" r="6" fill="#8E7D6B"/>
+  <circle cx="180" cy="780" r="3" fill="#8E7D6B" opacity="0.5"/>
+  <circle cx="210" cy="780" r="3" fill="#8E7D6B" opacity="0.3"/>
+</svg>

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <linearGradient id="desertSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3D1D16"/>
+      <stop offset="40%" stop-color="#803D29"/>
+      <stop offset="70%" stop-color="#C86D3B"/>
+      <stop offset="100%" stop-color="#E8A86C"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="75%" cy="35%" r="30%">
+      <stop offset="0%" stop-color="#FFF4D9"/>
+      <stop offset="40%" stop-color="#FCD34D" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#desertSky)"/>
+  <!-- Golden Sun -->
+  <circle cx="1200" cy="320" r="140" fill="url(#sunGlow)"/>
+  <!-- Dune Curves with layered lighting -->
+  <path d="M 0 540 Q 400 440 900 580 T 1600 500 L 1600 900 L 0 900 Z" fill="#B45309" opacity="0.6"/>
+  <path d="M 0 650 Q 600 560 1100 700 T 1600 620 L 1600 900 L 0 900 Z" fill="#92400E" opacity="0.8"/>
+  <path d="M 0 740 Q 500 680 950 800 T 1600 710 L 1600 900 L 0 900 Z" fill="#78350F"/>
+  <!-- Fine ridge line highlights -->
+  <path d="M 0 540 Q 400 440 900 580 T 1600 500" fill="none" stroke="#FDE68A" stroke-width="2" opacity="0.5"/>
+  <path d="M 0 650 Q 600 560 1100 700 T 1600 620" fill="none" stroke="#FDE68A" stroke-width="1.5" opacity="0.4"/>
+  <!-- Typography -->
+  <text x="140" y="240" font-family="'Cinzel', 'Playfair Display', serif" font-size="44" font-weight="600" letter-spacing="4" fill="#FFFBEB">DUNES &amp; HORIZON</text>
+  <text x="140" y="285" font-family="'Inter', sans-serif" font-size="16" font-weight="500" letter-spacing="4" fill="#FDE68A">MEDITERRANEAN FIELD DISPATCH</text>
+  <line x1="140" y1="320" x2="300" y2="320" stroke="#FDE68A" stroke-width="2"/>
+  <text x="140" y="760" font-family="'SF Mono', monospace" font-size="13" fill="#FEF3C7">SAHARA TRANSECT &#8226; EXPEDITION ARCHIVE</text>
+</svg>

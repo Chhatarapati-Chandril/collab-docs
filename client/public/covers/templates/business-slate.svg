@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <linearGradient id="slateGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E232A"/>
+      <stop offset="50%" stop-color="#282F38"/>
+      <stop offset="100%" stop-color="#14181D"/>
+    </linearGradient>
+    <linearGradient id="copperAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#E2A05B"/>
+      <stop offset="100%" stop-color="#C47D3B"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#slateGrad)"/>
+  <!-- Polished Geometric Slanted Section -->
+  <polygon points="1000,0 1600,0 1600,900 800,900" fill="#20262E" opacity="0.8"/>
+  <polygon points="1020,0 1024,0 824,900 820,900" fill="url(#copperAccent)"/>
+  <!-- Financial & Strategy Grid Lines -->
+  <line x1="880" y1="200" x2="1500" y2="200" stroke="#374151" stroke-width="1"/>
+  <line x1="880" y1="360" x2="1500" y2="360" stroke="#374151" stroke-width="1"/>
+  <line x1="880" y1="520" x2="1500" y2="520" stroke="#374151" stroke-width="1"/>
+  <line x1="880" y1="680" x2="1500" y2="680" stroke="#374151" stroke-width="1"/>
+  <!-- Stylized Financial Growth Wave -->
+  <path d="M 900 640 Q 1100 580 1200 440 T 1500 280" fill="none" stroke="url(#copperAccent)" stroke-width="3" opacity="0.9"/>
+  <!-- Typography -->
+  <text x="140" y="240" font-family="'Inter', -apple-system, sans-serif" font-size="44" font-weight="800" fill="#F9FAFB">PORTFOLIO DISPATCH</text>
+  <text x="140" y="285" font-family="'Inter', -apple-system, sans-serif" font-size="16" font-weight="500" letter-spacing="2" fill="#9CA3AF">ANNUAL PERFORMANCE AUDIT</text>
+  <rect x="140" y="320" width="80" height="3" fill="url(#copperAccent)"/>
+  <text x="140" y="760" font-family="'SF Mono', monospace" font-size="13" fill="#6B7280">FINANCIAL GOVERNANCE &#8226; VERIFIED</text>
+</svg>

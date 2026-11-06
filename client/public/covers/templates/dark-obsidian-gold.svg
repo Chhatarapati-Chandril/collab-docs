@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <linearGradient id="obsidianBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F0F11"/>
+      <stop offset="50%" stop-color="#141418"/>
+      <stop offset="100%" stop-color="#0A0A0C"/>
+    </linearGradient>
+    <linearGradient id="goldMetallic" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE082"/>
+      <stop offset="40%" stop-color="#D4AF37"/>
+      <stop offset="70%" stop-color="#AA771C"/>
+      <stop offset="100%" stop-color="#FFE082"/>
+    </linearGradient>
+    <radialGradient id="goldGlow" cx="80%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#D4AF37" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#obsidianBg)"/>
+  <rect width="1600" height="900" fill="url(#goldGlow)"/>
+  <!-- Luxury Geometric Hairline Accents -->
+  <rect x="940" y="160" width="480" height="580" fill="none" stroke="url(#goldMetallic)" stroke-width="1.5" opacity="0.8"/>
+  <rect x="980" y="200" width="400" height="500" fill="none" stroke="#D4AF37" stroke-width="0.75" stroke-opacity="0.4"/>
+  <circle cx="1180" cy="450" r="160" fill="none" stroke="url(#goldMetallic)" stroke-width="1.5" opacity="0.6"/>
+  <polygon points="1180,310 1280,480 1080,480" fill="none" stroke="url(#goldMetallic)" stroke-width="1.5" opacity="0.7"/>
+  <!-- Premium Atelier Typography -->
+  <text x="140" y="240" font-family="'Cinzel', 'Playfair Display', serif" font-size="44" font-weight="600" letter-spacing="8" fill="url(#goldMetallic)">OBSIDIAN &amp; GOLD</text>
+  <text x="140" y="285" font-family="'Inter', sans-serif" font-size="14" font-weight="500" letter-spacing="6" fill="#D4AF37">THE PRIVATE RESERVE &#8226; EDITION NOIR</text>
+  <line x1="140" y1="320" x2="340" y2="320" stroke="url(#goldMetallic)" stroke-width="2"/>
+  <text x="140" y="740" font-family="'Cinzel', serif" font-size="14" letter-spacing="3" fill="#A89260">COLLABDOCS HAUTE HORLOGERIE &#8226; MMXXVI</text>
+</svg>

@@ -25,6 +25,15 @@ export class DocumentResponseDto {
     updatedAt!: Date;
 
     @Expose()
+    coverImageUrl?: string | null;
+
+    @Expose()
+    coverPublicId?: string | null;
+
+    @Expose()
+    coverType?: string | null;
+
+    @Expose()
     _count?: { permissions: number };
 
     @Expose()

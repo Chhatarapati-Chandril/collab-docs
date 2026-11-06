@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <linearGradient id="quantumBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050811"/>
+      <stop offset="50%" stop-color="#0B132B"/>
+      <stop offset="100%" stop-color="#1C2541"/>
+    </linearGradient>
+    <pattern id="isoGrid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 30 L 60 60" fill="none" stroke="#00F0FF" stroke-width="0.75" stroke-opacity="0.15"/>
+    </pattern>
+    <radialGradient id="cyanGlow" cx="80%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#00F0FF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#quantumBg)"/>
+  <rect width="1600" height="900" fill="url(#isoGrid)"/>
+  <rect width="1600" height="900" fill="url(#cyanGlow)"/>
+  <!-- Quantum Isometric Node Circuits -->
+  <g stroke="#00F0FF" stroke-width="1.5" opacity="0.6">
+    <line x1="880" y1="450" x2="1080" y2="350"/>
+    <line x1="1080" y1="350" x2="1320" y2="350"/>
+    <line x1="1080" y1="350" x2="1080" y2="550"/>
+    <line x1="1320" y1="350" x2="1480" y2="250"/>
+    <line x1="1080" y1="550" x2="1280" y2="650"/>
+  </g>
+  <circle cx="880" cy="450" r="6" fill="#00F0FF"/>
+  <circle cx="1080" cy="350" r="8" fill="#FFFFFF" stroke="#00F0FF" stroke-width="2"/>
+  <circle cx="1320" cy="350" r="6" fill="#00F0FF"/>
+  <circle cx="1080" cy="550" r="5" fill="#7928CA"/>
+  <circle cx="1480" cy="250" r="5" fill="#00F0FF"/>
+  <circle cx="1280" cy="650" r="7" fill="#7928CA"/>
+  <!-- Cybernetic HUD details -->
+  <rect x="140" y="140" width="12" height="12" fill="#00F0FF"/>
+  <text x="165" y="151" font-family="'SF Mono', monospace" font-size="12" fill="#00F0FF" letter-spacing="2">SYS_STATUS: OPTIMAL // QUBIT_READY</text>
+  <text x="140" y="240" font-family="'Inter', sans-serif" font-size="44" font-weight="900" letter-spacing="-1" fill="#FFFFFF">QUANTUM SYNTHESIS</text>
+  <text x="140" y="285" font-family="'Inter', sans-serif" font-size="16" font-weight="600" letter-spacing="3" fill="#67E8F9">DISTRIBUTED SYSTEM ARCHITECTURE</text>
+  <line x1="140" y1="740" x2="480" y2="740" stroke="#1E293B" stroke-width="2"/>
+  <text x="140" y="775" font-family="'SF Mono', monospace" font-size="12" fill="#94A3B8">PROTOCOL 0x7FA &#8226; NODE_ID: 9942 &#8226; COLLABDOCS CORE</text>
+</svg>

@@ -34,12 +34,17 @@ export class DocCard {
     @Output() share = new EventEmitter<Document>();
     @Output() copyDoc = new EventEmitter<string>();
     @Output() delete = new EventEmitter<string>();
+    @Output() changeCover = new EventEmitter<Document>();
 
     isMenuOpen = false;
 
     readonly getColorForUser = getColorForUser;
     readonly getColorForId = getColorForId;
     readonly getInitial = getInitial;
+
+    get canEditCover(): boolean {
+        return this.isOwner || this.document?.permission === 'EDITOR';
+    }
 
     get hasValidTitle(): boolean {
         const title = this.document?.title;

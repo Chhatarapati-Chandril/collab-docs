@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <rect width="1600" height="900" fill="#F4EAD4"/>
+  <!-- Bold Modernist Bauhaus Geometry -->
+  <circle cx="1180" cy="450" r="320" fill="#D35400"/>
+  <path d="M 1180 130 A 320 320 0 0 1 1180 770 Z" fill="#2C3E50"/>
+  <rect x="760" y="240" width="220" height="420" fill="#F39C12"/>
+  <circle cx="760" cy="450" r="110" fill="#27AE60"/>
+  <polygon points="1380,240 1520,480 1240,480" fill="#E74C3C"/>
+  <line x1="600" y1="450" x2="1520" y2="450" stroke="#F4EAD4" stroke-width="4"/>
+  <!-- Typography & Structural Lines -->
+  <text x="140" y="230" font-family="'Space Grotesk', 'Inter', sans-serif" font-size="48" font-weight="900" fill="#2C3E50">BAUHAUS</text>
+  <text x="140" y="275" font-family="'Space Grotesk', 'Inter', sans-serif" font-size="20" font-weight="700" letter-spacing="4" fill="#D35400">FORM FOLLOWS FUNCTION</text>
+  <line x1="140" y1="310" x2="380" y2="310" stroke="#2C3E50" stroke-width="6"/>
+  <text x="140" y="740" font-family="'Space Grotesk', sans-serif" font-size="16" font-weight="600" fill="#7F8C8D">WEIMAR &#8226; DESSAU &#8226; BERLIN &#8226; 1919&#8211;2026</text>
+</svg>

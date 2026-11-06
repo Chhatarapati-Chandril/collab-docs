@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+      <path d="M 80 0 L 0 0 0 80" fill="none" stroke="#E5E7EB" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="900" fill="#F9FAFB"/>
+  <rect width="1600" height="900" fill="url(#grid)" opacity="0.6"/>
+  <!-- Bold modern geometric block -->
+  <rect x="940" y="160" width="480" height="580" fill="#111827"/>
+  <rect x="910" y="190" width="60" height="60" fill="#F3F4F6"/>
+  <circle cx="1180" cy="450" r="160" fill="none" stroke="#F9FAFB" stroke-width="2" stroke-opacity="0.3"/>
+  <!-- Editorial Typography & Swiss layout -->
+  <text x="140" y="240" font-family="'Inter', -apple-system, sans-serif" font-size="44" font-weight="900" letter-spacing="-1.5" fill="#111827">GRID &amp; SYSTEM</text>
+  <text x="140" y="290" font-family="'Inter', -apple-system, sans-serif" font-size="16" font-weight="600" letter-spacing="3" fill="#6B7280">SWISS EDITORIAL ARCHITECTURE</text>
+  <line x1="140" y1="330" x2="300" y2="330" stroke="#111827" stroke-width="4"/>
+  <!-- Technical coordinates & details -->
+  <text x="140" y="740" font-family="'SF Mono', 'Courier New', monospace" font-size="13" fill="#9CA3AF">LAT: 47.3769&#176; N &#8226; LON: 8.5417&#176; E &#8226; ZURICH</text>
+  <!-- Framing Crosshairs -->
+  <path d="M 120 120 L 140 120 M 120 120 L 120 140" stroke="#111827" stroke-width="2" fill="none"/>
+  <path d="M 1480 120 L 1460 120 M 1480 120 L 1480 140" stroke="#111827" stroke-width="2" fill="none"/>
+  <path d="M 120 780 L 140 780 M 120 780 L 120 760" stroke="#111827" stroke-width="2" fill="none"/>
+  <path d="M 1480 780 L 1460 780 M 1480 780 L 1480 760" stroke="#111827" stroke-width="2" fill="none"/>
+</svg>

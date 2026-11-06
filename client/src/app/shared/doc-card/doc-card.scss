@@ -18,18 +18,33 @@
 
         .card-preview {
             border-bottom-color: color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+
+            .doc-cover-image {
+                transform: scale(1.04);
+            }
         }
     }
 }
 
 .card-preview {
-    height: 160px;
+    width: 100%;
+    aspect-ratio: 16 / 9;
     position: relative;
     border-bottom: 1px solid color-mix(in srgb, var(--mat-sys-outline) 10%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+
+    .doc-cover-image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
     &::before {
         content: '';
@@ -214,6 +229,25 @@
 
 :host:last-child .doc-card-list {
     border-bottom: none;
+}
+
+.list-cover-wrapper {
+    width: 48px;
+    height: 30px;
+    border-radius: 6px;
+    margin-right: 16px;
+    flex-shrink: 0;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--mat-sys-outline-variant);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+
+    .list-cover-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
 }
 
 .list-avatar {

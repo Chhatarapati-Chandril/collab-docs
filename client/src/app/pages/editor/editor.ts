@@ -36,6 +36,11 @@ import { EDITOR_CONSTANTS } from './editor.constants';
 import { PresenceBar } from '../../shared/presence-bar/presence-bar';
 import { OfflineIndicator } from '../../shared/offline-indicator/offline-indicator';
 import { SharePanel, SharePanelData } from '../../shared/share-panel/share-panel';
+import {
+    CoverDialog,
+    CoverDialogData,
+    CoverDialogResult,
+} from '../../shared/cover-dialog/cover-dialog';
 
 Quill.register('modules/cursors', QuillCursors);
 
@@ -215,6 +220,73 @@ export class Editor implements OnInit, OnDestroy {
             },
             width: '800px',
             maxWidth: '90vw',
+        });
+    }
+
+    openCoverDialog(): void {
+        const doc = this.document();
+        if (!doc) return;
+
+        const dialogRef = this.dialog.open<CoverDialog, CoverDialogData, CoverDialogResult>(
+            CoverDialog,
+            {
+                data: {
+                    mode: 'edit',
+                    currentCoverImageUrl: doc.coverImageUrl,
+                    currentCoverPublicId: doc.coverPublicId,
+                    currentCoverType: doc.coverType,
+                    documentTitle: doc.title,
+                },
+                width: '880px',
+                maxWidth: '92vw',
+                panelClass: 'cover-dialog-panel',
+            },
+        );
+
+        dialogRef.afterClosed().subscribe(async (result) => {
+            if (!result) return;
+
+            if (result.action === 'apply' && result.coverImageUrl) {
+                this.document.update((d) =>
+                    d
+                        ? {
+                              ...d,
+                              coverImageUrl: result.coverImageUrl,
+                              coverPublicId: result.coverPublicId,
+                              coverType: result.coverType,
+                          }
+                        : d,
+                );
+
+                try {
+                    await this.docsService.setCover(doc.id, {
+                        coverImageUrl: result.coverImageUrl,
+                        coverPublicId: result.coverPublicId,
+                        coverType: result.coverType,
+                    });
+                    this.notifier.showSuccess('Document cover updated');
+                } catch {
+                    this.notifier.showError('Failed to update cover');
+                }
+            } else if (result.action === 'remove') {
+                this.document.update((d) =>
+                    d
+                        ? {
+                              ...d,
+                              coverImageUrl: null,
+                              coverPublicId: null,
+                              coverType: null,
+                          }
+                        : d,
+                );
+
+                try {
+                    await this.docsService.removeCover(doc.id);
+                    this.notifier.showSuccess('Document cover removed');
+                } catch {
+                    this.notifier.showError('Failed to remove cover');
+                }
+            }
         });
     }
 

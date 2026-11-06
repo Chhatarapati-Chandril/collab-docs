@@ -16,6 +16,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { RATE_LIMIT_MAX_REQUESTS, RATE_LIMIT_TTL } from './common/constants/app.constants';
 import { HealthModule } from './health/health.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
     imports: [
@@ -38,6 +39,7 @@ import { HealthModule } from './health/health.module';
         CollabModule,
         ShareModule,
         NotificationsModule,
+        CloudinaryModule,
         ScheduleModule.forRoot(),
     ],
     controllers: [AppController],

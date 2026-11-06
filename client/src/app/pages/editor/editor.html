@@ -45,6 +45,18 @@
             }
         </button>
 
+        @if (canEdit()) {
+            <button
+                mat-icon-button
+                (click)="openCoverDialog()"
+                [title]="document()?.coverImageUrl ? 'Change document cover' : 'Add document cover'"
+                aria-label="Document cover"
+                style="margin-right: 8px"
+            >
+                <mat-icon [style.color]="document()?.coverImageUrl ? '#1a73e8' : ''">image</mat-icon>
+            </button>
+        }
+
         @if (role() === 'OWNER') {
             <button
                 mat-flat-button

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#04121A"/>
+      <stop offset="50%" stop-color="#082832"/>
+      <stop offset="100%" stop-color="#0E444B"/>
+    </linearGradient>
+    <linearGradient id="auroraLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" stop-opacity="0.7"/>
+      <stop offset="50%" stop-color="#06B6D4" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0.2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#skyGrad)"/>
+  <!-- Aurora Boreal Flowing Wave -->
+  <path d="M 0 320 C 400 180 800 480 1200 240 C 1400 120 1550 200 1600 260 L 1600 0 L 0 0 Z" fill="url(#auroraLight)" opacity="0.45"/>
+  <path d="M 0 380 C 500 220 900 520 1300 280 C 1500 160 1600 220 1600 250 L 1600 0 L 0 0 Z" fill="#10B981" opacity="0.25"/>
+  <!-- Topographical Ridge Contours -->
+  <path d="M 0 760 Q 400 680 800 750 T 1600 620 L 1600 900 L 0 900 Z" fill="#04171E"/>
+  <path d="M 0 810 Q 500 740 1000 810 T 1600 730 L 1600 900 L 0 900 Z" fill="#020C10"/>
+  <!-- Stars & Constellation -->
+  <circle cx="280" cy="180" r="2" fill="#FFFFFF" opacity="0.8"/>
+  <circle cx="340" cy="150" r="2.5" fill="#FFFFFF" opacity="0.9"/>
+  <circle cx="420" cy="160" r="2" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="500" cy="210" r="2.5" fill="#FFFFFF" opacity="0.9"/>
+  <!-- Clean Nature Typography -->
+  <text x="140" y="240" font-family="'Inter', sans-serif" font-size="44" font-weight="800" letter-spacing="-1" fill="#E6FFFA">AURORA BOREALIS</text>
+  <text x="140" y="285" font-family="'Inter', sans-serif" font-size="16" font-weight="500" letter-spacing="3" fill="#6EE7B7">EXPEDITION LOG &#8226; NORDIC HORIZONS</text>
+  <line x1="140" y1="320" x2="260" y2="320" stroke="#34D399" stroke-width="2"/>
+  <text x="140" y="740" font-family="'SF Mono', monospace" font-size="13" fill="#5EEAD4">LAT: 68.2160&#176; N &#8226; LON: 14.5670&#176; E &#8226; ARCTIC CIRCLE</text>
+</svg>

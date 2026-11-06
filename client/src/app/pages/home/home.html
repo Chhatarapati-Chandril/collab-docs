@@ -25,10 +25,27 @@
                 </mat-button-toggle>
             </mat-button-toggle-group>
 
-            <button mat-flat-button color="primary" (click)="onCreate()" class="new-doc-btn">
+            <button
+                mat-flat-button
+                color="primary"
+                [matMenuTriggerFor]="newDocMenu"
+                class="new-doc-btn"
+            >
                 <mat-icon>add</mat-icon>
-                New document
+                <span>New document</span>
+                <mat-icon class="dropdown-chevron">arrow_drop_down</mat-icon>
             </button>
+
+            <mat-menu #newDocMenu="matMenu" class="new-doc-menu">
+                <button mat-menu-item (click)="onCreateBlank()">
+                    <mat-icon>note_add</mat-icon>
+                    <span>Blank document</span>
+                </button>
+                <button mat-menu-item (click)="onCreateWithCover()">
+                    <mat-icon>image</mat-icon>
+                    <span>Document with cover</span>
+                </button>
+            </mat-menu>
         </div>
     </div>
 
@@ -68,6 +85,7 @@
                         (share)="onShare($event)"
                         (copyDoc)="onCopy($event)"
                         (delete)="onDelete($event)"
+                        (changeCover)="onChangeCover($event)"
                     />
                 }
             </div>

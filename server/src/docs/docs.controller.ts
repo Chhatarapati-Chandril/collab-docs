@@ -8,11 +8,16 @@ import {
     Param,
     Patch,
     Post,
+    UploadedFile,
     UseGuards,
+    UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import 'multer';
 import { DocsService } from './docs.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
+import { UpdateCoverDto } from './dto/update-cover.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiResponse } from '../common/dto/api-response.dto';
 import { GetDocumentsResponseDto } from './dto/get-documents-response.dto';
@@ -20,6 +25,7 @@ import { DocumentResponseDto } from './dto/document-response.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { CurrentUserPayload } from '../auth/types/current-user-payload.type';
 import { Serialize } from '../common/intercepters/serialize.interceptor';
+import type { CloudinaryUploadResult } from '../cloudinary/cloudinary.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('docs')
@@ -116,6 +122,59 @@ export class DocsController {
         return new ApiResponse({
             statusCode: HttpStatus.CREATED,
             message: 'Document copied successfully',
+            data: document,
+        });
+    }
+
+    @Post('cover/upload')
+    @HttpCode(HttpStatus.CREATED)
+    @UseInterceptors(
+        FileInterceptor('file', {
+            limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+        }),
+    )
+    async uploadCover(
+        @CurrentUser() user: CurrentUserPayload,
+        @UploadedFile() file: Express.Multer.File,
+    ): Promise<ApiResponse<CloudinaryUploadResult>> {
+        const result = await this.docsService.uploadCoverImage(user.userId, file);
+
+        return new ApiResponse({
+            statusCode: HttpStatus.CREATED,
+            message: 'Cover image uploaded successfully',
+            data: result,
+        });
+    }
+
+    @Patch(':id/cover')
+    @HttpCode(HttpStatus.OK)
+    @Serialize(DocumentResponseDto)
+    async updateCover(
+        @CurrentUser() user: CurrentUserPayload,
+        @Param('id') id: string,
+        @Body() dto: UpdateCoverDto,
+    ): Promise<ApiResponse<DocumentResponseDto>> {
+        const document = await this.docsService.setCover(user.userId, id, dto);
+
+        return new ApiResponse({
+            statusCode: HttpStatus.OK,
+            message: 'Cover updated successfully',
+            data: document,
+        });
+    }
+
+    @Delete(':id/cover')
+    @HttpCode(HttpStatus.OK)
+    @Serialize(DocumentResponseDto)
+    async removeCover(
+        @CurrentUser() user: CurrentUserPayload,
+        @Param('id') id: string,
+    ): Promise<ApiResponse<DocumentResponseDto>> {
+        const document = await this.docsService.removeCover(user.userId, id);
+
+        return new ApiResponse({
+            statusCode: HttpStatus.OK,
+            message: 'Cover removed successfully',
             data: document,
         });
     }

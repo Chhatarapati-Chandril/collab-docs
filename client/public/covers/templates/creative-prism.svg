@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <linearGradient id="prismBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFECD2"/>
+      <stop offset="50%" stop-color="#FCB69F"/>
+      <stop offset="100%" stop-color="#EE9CA7"/>
+    </linearGradient>
+    <radialGradient id="meshViolet" cx="80%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#A18CD1" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#FBC2EB" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="meshCyan" cx="30%" cy="70%" r="50%">
+      <stop offset="0%" stop-color="#84FAB0" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#8FD3F4" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blurFilter" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="60"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#prismBg)"/>
+  <circle cx="1200" cy="300" r="400" fill="url(#meshViolet)"/>
+  <circle cx="400" cy="700" r="350" fill="url(#meshCyan)"/>
+  <!-- Organic Glassmorphic Curved Shapes -->
+  <path d="M 800 200 C 1100 100 1400 300 1300 600 C 1200 900 900 800 750 650 C 600 500 700 250 800 200 Z" fill="#FFFFFF" fill-opacity="0.25" stroke="#FFFFFF" stroke-width="1.5" stroke-opacity="0.5"/>
+  <circle cx="1100" cy="450" r="140" fill="#FFFFFF" fill-opacity="0.3" stroke="#FFFFFF" stroke-width="2"/>
+  <!-- Editorial Typography -->
+  <text x="140" y="240" font-family="'Plus Jakarta Sans', 'Inter', sans-serif" font-size="44" font-weight="900" letter-spacing="-1" fill="#2D2038">SPECTRUM LABS</text>
+  <text x="140" y="285" font-family="'Inter', sans-serif" font-size="16" font-weight="600" letter-spacing="4" fill="#6C5278">VISUAL IDENTITY &amp; CREATIVE SYNTHESIS</text>
+  <circle cx="140" cy="330" r="8" fill="#2D2038"/>
+  <circle cx="165" cy="330" r="8" fill="#845EC2"/>
+  <circle cx="190" cy="330" r="8" fill="#FF6F91"/>
+  <circle cx="215" cy="330" r="8" fill="#FF9671"/>
+  <text x="140" y="760" font-family="'Inter', sans-serif" font-size="14" font-weight="600" fill="#4A3B52">COLLECTION 2026 &#8226; VOLUME IV</text>
+</svg>

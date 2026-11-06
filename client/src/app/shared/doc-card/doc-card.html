@@ -7,7 +7,14 @@
         role="button"
     >
         <div class="card-preview" [style.background-color]="getColorForId(document.id)">
-            @if (hasValidTitle) {
+            @if (document.coverImageUrl) {
+                <img
+                    [src]="document.coverImageUrl"
+                    [alt]="document.title || 'Document cover'"
+                    class="doc-cover-image"
+                    loading="lazy"
+                />
+            } @else if (hasValidTitle) {
                 <div class="doc-watermark">{{ watermarkChar }}</div>
             } @else {
                 <mat-icon class="doc-default-icon">description</mat-icon>
@@ -76,13 +83,24 @@
         tabindex="0"
         role="button"
     >
-        <div class="list-avatar" [style.background-color]="getColorForId(document.id)">
-            @if (hasValidTitle) {
-                <span class="list-watermark">{{ watermarkChar }}</span>
-            } @else {
-                <mat-icon class="list-default-icon">description</mat-icon>
-            }
-        </div>
+        @if (document.coverImageUrl) {
+            <div class="list-cover-wrapper">
+                <img
+                    [src]="document.coverImageUrl"
+                    [alt]="document.title || 'Document cover'"
+                    class="list-cover-img"
+                    loading="lazy"
+                />
+            </div>
+        } @else {
+            <div class="list-avatar" [style.background-color]="getColorForId(document.id)">
+                @if (hasValidTitle) {
+                    <span class="list-watermark">{{ watermarkChar }}</span>
+                } @else {
+                    <mat-icon class="list-default-icon">description</mat-icon>
+                }
+            </div>
+        }
 
         <div class="list-title" [title]="document.title || 'Untitled document'">
             {{ document.title || 'Untitled document' }}
@@ -119,6 +137,12 @@
 
 <!-- Shared Menu Definition -->
 <mat-menu #docMenu="matMenu">
+    @if (canEditCover) {
+        <button mat-menu-item (click)="changeCover.emit(document)">
+            <mat-icon>image</mat-icon>
+            <span>{{ document.coverImageUrl ? 'Change cover' : 'Add cover' }}</span>
+        </button>
+    }
     @if (isOwner) {
         <button mat-menu-item (click)="rename.emit(document)">
             <mat-icon>edit</mat-icon><span>Rename</span>

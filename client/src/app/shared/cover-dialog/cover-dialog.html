@@ -1,0 +1,199 @@
+<div class="cover-dialog-container">
+    <div class="dialog-header">
+        <div class="header-text">
+            <h2 mat-dialog-title class="dialog-title">
+                {{ data.mode === 'create' ? 'Create document with cover' : 'Document cover' }}
+            </h2>
+            <p class="dialog-subtitle">
+                Select a professionally crafted template or upload a custom 16:9 cover image.
+            </p>
+        </div>
+        <button mat-icon-button (click)="onCancel()" aria-label="Close dialog" class="close-btn">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+
+    <mat-dialog-content class="cover-dialog-content">
+        <!-- Live Preview Stage (16:9) -->
+        <div class="preview-stage">
+            <div class="preview-banner-container">
+                @if (selectedUrl()) {
+                    <img
+                        [src]="selectedUrl()"
+                        alt="Selected cover preview"
+                        class="preview-cover-image"
+                        loading="eager"
+                    />
+                } @else {
+                    <div class="preview-placeholder">
+                        <mat-icon>image</mat-icon>
+                        <span>No cover selected</span>
+                    </div>
+                }
+
+                <div class="preview-overlay-info">
+                    <span class="preview-badge">16:9 Live Preview</span>
+                    <div class="preview-doc-title">
+                        {{ data.documentTitle || 'Untitled Document' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mode Switcher: Gallery vs Upload -->
+        <div class="view-switch-row">
+            <button
+                type="button"
+                class="switch-tab-btn"
+                [class.active]="activeTab() === 'gallery'"
+                (click)="activeTab.set('gallery')"
+            >
+                <mat-icon>palette</mat-icon>
+                <span>Curated Templates ({{ templates.length }})</span>
+            </button>
+            <button
+                type="button"
+                class="switch-tab-btn"
+                [class.active]="activeTab() === 'upload'"
+                (click)="activeTab.set('upload')"
+            >
+                <mat-icon>cloud_upload</mat-icon>
+                <span>Upload Custom Image</span>
+            </button>
+        </div>
+
+        @if (activeTab() === 'gallery') {
+            <!-- Category Navigation -->
+            <div class="categories-bar">
+                @for (cat of categories; track cat) {
+                    <button
+                        type="button"
+                        class="category-pill"
+                        [class.active]="selectedCategory() === cat"
+                        (click)="selectCategory(cat)"
+                    >
+                        {{ cat }}
+                    </button>
+                }
+            </div>
+
+            <!-- Templates Grid -->
+            <div class="templates-grid">
+                @for (template of filteredTemplates(); track template.id) {
+                    <div
+                        class="template-card"
+                        [class.selected]="selectedTemplateId() === template.id && selectedType() === 'TEMPLATE'"
+                        (click)="selectTemplate(template)"
+                        tabindex="0"
+                        role="button"
+                        (keydown.enter)="selectTemplate(template)"
+                    >
+                        <div class="template-thumb-wrapper">
+                            <img
+                                [src]="template.url"
+                                [alt]="template.name"
+                                class="template-thumb-img"
+                                loading="lazy"
+                            />
+                            @if (selectedTemplateId() === template.id && selectedType() === 'TEMPLATE') {
+                                <div class="selection-badge">
+                                    <mat-icon>check_circle</mat-icon>
+                                </div>
+                            }
+                        </div>
+                        <div class="template-info">
+                            <span class="template-name">{{ template.name }}</span>
+                            <span class="template-category">{{ template.category }}</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        } @else {
+            <!-- Custom Image Upload Section -->
+            <div class="upload-section">
+                <div
+                    class="drop-zone"
+                    [class.dragging]="isDragging()"
+                    [class.loading]="isUploading()"
+                    tabindex="0"
+                    role="button"
+                    aria-label="Upload custom cover image"
+                    (dragover)="onDragOver($event)"
+                    (dragleave)="onDragLeave($event)"
+                    (drop)="onDrop($event)"
+                    (click)="fileInput.click()"
+                    (keydown.enter)="fileInput.click()"
+                    (keydown.space)="$event.preventDefault(); fileInput.click()"
+                >
+                    <input
+                        #fileInput
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        style="display: none"
+                        (change)="onFileInputChange($event)"
+                    />
+
+                    @if (isUploading()) {
+                        <div class="upload-state">
+                            <mat-spinner diameter="44"></mat-spinner>
+                            <span class="upload-text">Optimizing and uploading to Cloudinary...</span>
+                        </div>
+                    } @else {
+                        <div class="drop-content">
+                            <div class="drop-icon-circle">
+                                <mat-icon>cloud_upload</mat-icon>
+                            </div>
+                            <h3 class="drop-title">Drop your cover image here, or browse</h3>
+                            <p class="drop-desc">
+                                16:9 ratio recommended &bull; 1600 &times; 900 px &bull; JPEG, PNG or WebP &bull; Max 5 MB
+                            </p>
+                            <button mat-stroked-button color="primary" class="browse-btn" (click)="$event.stopPropagation(); fileInput.click()">
+                                Choose File
+                            </button>
+                        </div>
+                    }
+                </div>
+
+                @if (uploadError()) {
+                    <div class="upload-error-box">
+                        <mat-icon>error_outline</mat-icon>
+                        <span>{{ uploadError() }}</span>
+                    </div>
+                }
+
+                @if (selectedType() === 'CUSTOM' && selectedUrl()) {
+                    <div class="custom-active-card">
+                        <div class="custom-status">
+                            <mat-icon class="custom-check-icon">check_circle</mat-icon>
+                            <span>Custom cover image uploaded &amp; ready to apply</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="dialog-actions-bar">
+        @if (data.mode === 'edit' && hasExistingCover()) {
+            <button mat-button color="warn" (click)="onRemoveCover()" class="remove-btn">
+                <mat-icon>delete_outline</mat-icon>
+                <span>Remove cover</span>
+            </button>
+        }
+
+        <span class="actions-spacer"></span>
+
+        <button mat-button (click)="onCancel()">Cancel</button>
+
+        <button
+            mat-flat-button
+            color="primary"
+            [disabled]="!selectedUrl() || isUploading()"
+            (click)="onConfirm()"
+            class="confirm-btn"
+        >
+            <mat-icon>{{ data.mode === 'create' ? 'add' : 'check' }}</mat-icon>
+            <span>{{ data.mode === 'create' ? 'Create document' : 'Apply cover' }}</span>
+        </button>
+    </mat-dialog-actions>
+</div>

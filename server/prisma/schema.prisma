@@ -58,6 +58,11 @@ model Document {
     yjsSnapshot       Bytes?
     snapshotUpdatedAt DateTime?
 
+    // Cover image fields
+    coverImageUrl     String?
+    coverPublicId     String?
+    coverType         String?
+
     // relations
     owner         User            @relation("OwnedDocs", fields: [ownerId], references: [id], onDelete: Cascade)
     permissions   DocPermission[]
