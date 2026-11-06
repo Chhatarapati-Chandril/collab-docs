@@ -430,7 +430,7 @@ export class AiSidebar {
                 m.id === id
                     ? {
                           ...m,
-                          content: 'Failed to generate response. Please try again.',
+                          content: '',
                           isStreaming: false,
                           error,
                       }

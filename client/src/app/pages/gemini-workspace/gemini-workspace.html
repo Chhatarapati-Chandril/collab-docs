@@ -104,7 +104,24 @@
                                     }}</time>
                                 </div>
 
-                                @if (msg.isStreaming && !msg.content) {
+                                @if (msg.error) {
+                                    <div class="msg-error-banner">
+                                        <div class="error-header">
+                                            <mat-icon>info_outline</mat-icon>
+                                            <span>{{ msg.error }}</span>
+                                        </div>
+                                        <button
+                                            mat-button
+                                            type="button"
+                                            class="retry-action-btn"
+                                            (click)="regenerateLast()"
+                                            [disabled]="isStreaming()"
+                                        >
+                                            <mat-icon>refresh</mat-icon>
+                                            Retry
+                                        </button>
+                                    </div>
+                                } @else if (msg.isStreaming && !msg.content) {
                                     <div class="streaming-indicator">
                                         <mat-progress-spinner
                                             mode="indeterminate"
@@ -117,13 +134,6 @@
                                         class="msg-text-content"
                                         [innerHTML]="formatMarkdown(msg.content)"
                                     ></div>
-                                }
-
-                                @if (msg.error) {
-                                    <div class="msg-error-banner">
-                                        <mat-icon>error_outline</mat-icon>
-                                        <span>{{ msg.error }}</span>
-                                    </div>
                                 }
 
                                 <!-- Actions Bar -->
@@ -209,10 +219,10 @@
                             class="tools-menu-btn"
                             [matMenuTriggerFor]="wsToolsMenu"
                             [disabled]="isStreaming()"
-                            title="Tools & Actions"
-                            aria-label="Open AI Tools Menu"
+                            title="Tools & actions"
+                            aria-label="Open AI tools & actions menu"
                         >
-                            <mat-icon>auto_awesome</mat-icon>
+                            <mat-icon>more_vert</mat-icon>
                         </button>
 
                         <textarea

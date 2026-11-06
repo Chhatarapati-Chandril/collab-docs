@@ -1,6 +1,6 @@
 export const AI_CONSTANTS = {
     DEFAULT_MODEL: process.env.GEMINI_MODEL || 'gemini-3.5-flash',
-    FALLBACK_MODEL: 'gemini-3.1-flash-lite',
+    FALLBACK_MODEL: 'gemini-3.5-flash-lite',
     RATE_LIMIT_TTL: 60_000,
     RATE_LIMIT_MAX: 30, // 30 AI requests per minute per user
     MAX_DOCUMENT_CHARS: 100_000,

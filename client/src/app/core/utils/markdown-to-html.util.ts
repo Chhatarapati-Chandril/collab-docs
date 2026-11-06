@@ -404,6 +404,81 @@ export function parseMarkdownToSanitizedHtml(input: string): string {
 }
 
 /**
+ * Sanitizes raw AI error messages, extracting human-readable explanations
+ * and ensuring raw internal JSON or stack traces never appear in the UI.
+ */
+export function sanitizeAiErrorMessage(rawMsg?: string | null): string {
+    if (!rawMsg) {
+        return 'Unable to generate response. Please try again.';
+    }
+
+    const trimmed = rawMsg.trim();
+
+    // Check if message contains JSON payload (e.g. {"error": {"code": 503, ...}})
+    if (trimmed.includes('{"error"') || (trimmed.includes('{') && trimmed.includes('"message"'))) {
+        try {
+            const jsonStart = trimmed.indexOf('{');
+            const jsonEnd = trimmed.lastIndexOf('}');
+            if (jsonStart !== -1 && jsonEnd !== -1 && jsonEnd > jsonStart) {
+                const parsed = JSON.parse(trimmed.slice(jsonStart, jsonEnd + 1)) as {
+                    error?: { code?: number; message?: string; status?: string };
+                    message?: string;
+                };
+
+                const innerMsg = parsed.error?.message || parsed.message;
+                if (innerMsg) {
+                    return sanitizeAiErrorMessage(innerMsg);
+                }
+            }
+        } catch {
+            // Not parseable JSON
+        }
+    }
+
+    const lower = trimmed.toLowerCase();
+
+    if (
+        lower.includes('unavailable') ||
+        lower.includes('503') ||
+        lower.includes('high demand') ||
+        lower.includes('overloaded') ||
+        lower.includes('spikes in demand') ||
+        lower.includes('temporarily unavailable')
+    ) {
+        return 'Gemini is currently experiencing high demand. Please try again in a few moments.';
+    }
+
+    if (
+        lower.includes('429') ||
+        lower.includes('quota') ||
+        lower.includes('resource_exhausted') ||
+        lower.includes('rate limit')
+    ) {
+        return 'Gemini AI rate limit reached. Please wait a moment before trying again.';
+    }
+
+    if (lower.includes('safety') || lower.includes('blocked') || lower.includes('policy')) {
+        return 'This prompt or generated response was flagged by safety filters.';
+    }
+
+    if (lower.includes('401') || lower.includes('unauthorized') || lower.includes('api key')) {
+        return 'AI service authentication failed. Please check system configuration.';
+    }
+
+    // Strip internal debug prefixes if present
+    const cleaned = trimmed
+        .replace(/^AI generation encountered an error:\s*/i, '')
+        .replace(/^Server returned \d+:\s*/i, '')
+        .trim();
+
+    if (cleaned.startsWith('got status:')) {
+        return 'Gemini is temporarily unavailable. Please try again shortly.';
+    }
+
+    return cleaned || 'Failed to generate response. Please try again.';
+}
+
+/**
  * Helper for AI chat bubble and preview rendering so preview and inserted document
  * share 100% consistent styling and parsing.
  */

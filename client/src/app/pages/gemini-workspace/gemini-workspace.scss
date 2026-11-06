@@ -407,10 +407,56 @@
 
         .msg-error-banner {
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            align-items: flex-start;
             gap: 8px;
-            color: var(--mat-sys-error);
-            font-size: 13px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: color-mix(
+                in srgb,
+                var(--mat-sys-error-container, #fce8e6) 40%,
+                transparent
+            );
+            border: 1px solid color-mix(in srgb, var(--mat-sys-error) 25%, transparent);
+
+            .error-header {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 13px;
+                line-height: 1.4;
+                color: var(--mat-sys-on-surface);
+
+                mat-icon {
+                    font-size: 18px;
+                    width: 18px;
+                    height: 18px;
+                    color: var(--mat-sys-error);
+                    flex-shrink: 0;
+                }
+            }
+
+            .retry-action-btn {
+                height: 28px;
+                padding: 0 12px;
+                font-size: 12px;
+                font-weight: 500;
+                color: var(--mat-sys-primary);
+                border-radius: 14px;
+                background: var(--mat-sys-surface);
+                border: 1px solid var(--mat-sys-outline-variant);
+
+                mat-icon {
+                    font-size: 15px;
+                    width: 15px;
+                    height: 15px;
+                    margin-right: 4px;
+                }
+
+                &:hover {
+                    background: var(--mat-sys-surface-container-high);
+                }
+            }
         }
 
         .msg-actions-bar {
@@ -521,8 +567,10 @@
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            color: #1a73e8;
+            color: var(--mat-sys-on-surface-variant);
             flex-shrink: 0;
+            border-radius: 50%;
+            transition: all 0.2s ease;
 
             mat-icon {
                 font-size: 20px !important;
@@ -542,7 +590,8 @@
             }
 
             &:hover {
-                background: var(--mat-sys-surface);
+                color: var(--mat-sys-primary);
+                background: var(--mat-sys-surface-container-high);
             }
         }
 

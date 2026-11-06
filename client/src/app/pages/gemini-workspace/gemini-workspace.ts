@@ -417,7 +417,7 @@ export class GeminiWorkspace implements OnInit {
                 m.id === id
                     ? {
                           ...m,
-                          content: 'Failed to generate response. Please try again.',
+                          content: '',
                           isStreaming: false,
                           error,
                       }

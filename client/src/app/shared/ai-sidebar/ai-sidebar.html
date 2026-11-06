@@ -108,7 +108,24 @@
                     </div>
 
                     <div class="message-bubble">
-                        @if (msg.isStreaming && !msg.content) {
+                        @if (msg.error) {
+                            <div class="message-error">
+                                <div class="error-header">
+                                    <mat-icon>info_outline</mat-icon>
+                                    <span>{{ msg.error }}</span>
+                                </div>
+                                <button
+                                    mat-button
+                                    type="button"
+                                    class="retry-action-btn"
+                                    (click)="regenerateLast()"
+                                    [disabled]="isStreaming()"
+                                >
+                                    <mat-icon>refresh</mat-icon>
+                                    Retry
+                                </button>
+                            </div>
+                        } @else if (msg.isStreaming && !msg.content) {
                             <div class="streaming-loader">
                                 <span class="dot"></span>
                                 <span class="dot"></span>
@@ -119,13 +136,6 @@
                                 class="message-content"
                                 [innerHTML]="formatMarkdown(msg.content)"
                             ></div>
-                        }
-
-                        @if (msg.error) {
-                            <div class="message-error">
-                                <mat-icon>error_outline</mat-icon>
-                                <span>{{ msg.error }}</span>
-                            </div>
                         }
 
                         <!-- Response Actions: Insert, Replace, Copy, Regenerate -->
@@ -252,10 +262,10 @@
                     class="tools-menu-btn"
                     [matMenuTriggerFor]="toolsMenu"
                     [disabled]="isStreaming()"
-                    title="Tools & Actions"
-                    aria-label="Open AI Tools Menu"
+                    title="Tools & actions"
+                    aria-label="Open AI tools & actions menu"
                 >
-                    <mat-icon>auto_awesome</mat-icon>
+                    <mat-icon>more_vert</mat-icon>
                 </button>
 
                 <!-- Multiline Prompt Input -->

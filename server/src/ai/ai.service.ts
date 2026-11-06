@@ -194,6 +194,7 @@ export class AiService {
         const promptConfig = buildActionPrompt(document, dto);
         const client = this.getClient();
 
+        let hasYielded = false;
         try {
             const stream = await client.models.generateContentStream({
                 model: this.primaryModel,
@@ -206,13 +207,44 @@ export class AiService {
 
             for await (const chunk of stream) {
                 if (chunk.text) {
+                    hasYielded = true;
                     yield chunk.text;
                 }
             }
         } catch (err: unknown) {
-            this.logger.error(
-                `Error in streamAction: ${err instanceof Error ? err.message : String(err)}`,
+            this.logger.warn(
+                `Primary model (${this.primaryModel}) streamAction error: ${err instanceof Error ? err.message : String(err)}`,
             );
+
+            // If no chunks yielded yet and error is recoverable, attempt fallback model
+            if (!hasYielded && this.canFallback(err)) {
+                try {
+                    this.logger.log(
+                        `Attempting streamAction fallback model: ${this.fallbackModel}`,
+                    );
+                    const fallbackStream = await client.models.generateContentStream({
+                        model: this.fallbackModel,
+                        contents: promptConfig.contents,
+                        config: {
+                            systemInstruction: promptConfig.systemInstruction,
+                            temperature: promptConfig.temperature,
+                        },
+                    });
+
+                    for await (const chunk of fallbackStream) {
+                        if (chunk.text) {
+                            yield chunk.text;
+                        }
+                    }
+                    return;
+                } catch (fallbackErr: unknown) {
+                    this.logger.error(
+                        `Fallback model (${this.fallbackModel}) streamAction failed: ${fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr)}`,
+                    );
+                    this.handleStreamError(fallbackErr);
+                }
+            }
+
             this.handleStreamError(err);
         }
     }
@@ -222,6 +254,7 @@ export class AiService {
         const promptConfig = buildChatPrompt(document, dto);
         const client = this.getClient();
 
+        let hasYielded = false;
         try {
             const stream = await client.models.generateContentStream({
                 model: this.primaryModel,
@@ -234,26 +267,85 @@ export class AiService {
 
             for await (const chunk of stream) {
                 if (chunk.text) {
+                    hasYielded = true;
                     yield chunk.text;
                 }
             }
         } catch (err: unknown) {
-            this.logger.error(
-                `Error in streamChat: ${err instanceof Error ? err.message : String(err)}`,
+            this.logger.warn(
+                `Primary model (${this.primaryModel}) streamChat error: ${err instanceof Error ? err.message : String(err)}`,
             );
+
+            // If no chunks yielded yet and error is recoverable, attempt fallback model
+            if (!hasYielded && this.canFallback(err)) {
+                try {
+                    this.logger.log(`Attempting streamChat fallback model: ${this.fallbackModel}`);
+                    const fallbackStream = await client.models.generateContentStream({
+                        model: this.fallbackModel,
+                        contents: promptConfig.contents,
+                        config: {
+                            systemInstruction: promptConfig.systemInstruction,
+                            temperature: promptConfig.temperature,
+                        },
+                    });
+
+                    for await (const chunk of fallbackStream) {
+                        if (chunk.text) {
+                            yield chunk.text;
+                        }
+                    }
+                    return;
+                } catch (fallbackErr: unknown) {
+                    this.logger.error(
+                        `Fallback model (${this.fallbackModel}) streamChat failed: ${fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr)}`,
+                    );
+                    this.handleStreamError(fallbackErr);
+                }
+            }
+
             this.handleStreamError(err);
         }
     }
 
+    private canFallback(err: unknown): boolean {
+        const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+        if (
+            msg.includes('safety') ||
+            msg.includes('blocked') ||
+            msg.includes('429') ||
+            msg.includes('quota') ||
+            msg.includes('resource_exhausted') ||
+            msg.includes('401') ||
+            msg.includes('api key')
+        ) {
+            return false;
+        }
+        return true;
+    }
+
     private handleStreamError(err: unknown): never {
         const msg = err instanceof Error ? err.message : String(err);
+        this.logger.error(`AI execution error: ${msg}`);
+
+        if (
+            msg.includes('503') ||
+            msg.includes('UNAVAILABLE') ||
+            msg.toLowerCase().includes('high demand') ||
+            msg.toLowerCase().includes('overloaded') ||
+            msg.toLowerCase().includes('temporarily unavailable')
+        ) {
+            throw new HttpException(
+                'Gemini is currently experiencing high demand. Please try again in a few moments.',
+                HttpStatus.SERVICE_UNAVAILABLE,
+            );
+        }
         if (
             msg.includes('429') ||
             msg.toLowerCase().includes('quota') ||
             msg.includes('RESOURCE_EXHAUSTED')
         ) {
             throw new HttpException(
-                'Gemini AI quota or rate limit exceeded. Please wait a moment before trying again.',
+                'Gemini AI rate limit exceeded. Please wait a moment before trying again.',
                 HttpStatus.TOO_MANY_REQUESTS,
             );
         }
@@ -265,7 +357,15 @@ export class AiService {
         if (msg.includes('401') || msg.toLowerCase().includes('api key')) {
             throw new UnauthorizedException('Invalid or unauthorized Gemini API key.');
         }
-        throw new InternalServerErrorException(`AI generation encountered an error: ${msg}`);
+        if (msg.includes('404') || msg.includes('NOT_FOUND')) {
+            throw new HttpException(
+                'The requested AI model is currently unavailable.',
+                HttpStatus.SERVICE_UNAVAILABLE,
+            );
+        }
+        throw new InternalServerErrorException(
+            'Failed to generate AI response. Please try again later.',
+        );
     }
 
     private async handleApiError<T>(
@@ -276,12 +376,7 @@ export class AiService {
         const message = err instanceof Error ? err.message : String(err);
         this.logger.error(`Gemini API error during ${context}: ${message}`);
 
-        if (
-            retryFallback &&
-            !message.includes('429') &&
-            !message.toLowerCase().includes('quota') &&
-            !message.toLowerCase().includes('safety')
-        ) {
+        if (retryFallback && this.canFallback(err)) {
             try {
                 this.logger.warn(
                     `Attempting fallback model ${this.fallbackModel} for ${context}...`,

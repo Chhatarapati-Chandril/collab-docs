@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
 import { AiActionPayload, AiChatPayload, AiResponse } from '../models/ai.model';
 import { Auth } from './auth';
+import { sanitizeAiErrorMessage } from '../utils/markdown-to-html.util';
 
 export interface StreamCallbacks {
     onChunk: (chunk: string) => void;
@@ -83,12 +84,14 @@ export class Ai {
                 } catch {
                     // response is not json
                 }
-                callbacks.onError(errorMsg);
+                callbacks.onError(sanitizeAiErrorMessage(errorMsg));
                 return;
             }
 
             if (!response.body) {
-                callbacks.onError('ReadableStream not supported or empty body');
+                callbacks.onError(
+                    sanitizeAiErrorMessage('ReadableStream not supported or empty body'),
+                );
                 return;
             }
 
@@ -125,7 +128,7 @@ export class Ai {
                                 try {
                                     const parsed = JSON.parse(dataStr);
                                     if (parsed.error) {
-                                        callbacks.onError(parsed.error);
+                                        callbacks.onError(sanitizeAiErrorMessage(parsed.error));
                                         return;
                                     }
                                     if (parsed.text) {
@@ -149,7 +152,7 @@ export class Ai {
                 return;
             }
             const message = err instanceof Error ? err.message : String(err);
-            callbacks.onError(message);
+            callbacks.onError(sanitizeAiErrorMessage(message));
         }
     }
 }
