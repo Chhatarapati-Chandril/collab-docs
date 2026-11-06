@@ -31,6 +31,7 @@ import { Share } from '../../core/services/share';
 import { Document, Permission } from '../../core/models/doc.model';
 import { appLogger } from '../../core/utils/app-logger.util';
 import { extractErrorMessage } from '../../core/utils/http-error.util';
+import { parseMarkdownToSanitizedHtml } from '../../core/utils/markdown-to-html.util';
 import { Notifier } from '../../shared/services/notifier';
 import { EDITOR_CONSTANTS } from './editor.constants';
 import { PresenceBar } from '../../shared/presence-bar/presence-bar';
@@ -41,6 +42,9 @@ import {
     CoverDialogData,
     CoverDialogResult,
 } from '../../shared/cover-dialog/cover-dialog';
+import { AiSidebar } from '../../shared/ai-sidebar/ai-sidebar';
+import { AiDocSync } from '../../core/services/ai-doc-sync';
+import { Subscription } from 'rxjs';
 
 Quill.register('modules/cursors', QuillCursors);
 
@@ -59,6 +63,7 @@ Quill.register('modules/cursors', QuillCursors);
         RouterLink,
         PresenceBar,
         OfflineIndicator,
+        AiSidebar,
     ],
     templateUrl: './editor.html',
     styleUrl: './editor.scss',
@@ -70,9 +75,16 @@ export class Editor implements OnInit, OnDestroy {
     private router = inject(Router);
     private docsService = inject(Docs);
     private collabService = inject(Collab);
+    private aiDocSync = inject(AiDocSync);
+    private syncSub?: Subscription;
 
-    private docId!: string;
+    docId!: string;
     private binding: QuillBinding | null = null;
+    private quillInstance: Quill | null = null;
+
+    readonly isAiSidebarOpen = signal(false);
+    readonly selectedText = signal('');
+    readonly documentContent = signal('');
 
     document = signal<Document | null>(null);
     isLoading = signal(true);
@@ -384,11 +396,40 @@ export class Editor implements OnInit, OnDestroy {
         }
 
         this.isLoading.set(false);
+
+        this.syncSub = this.aiDocSync.events$.subscribe((event) => {
+            if (event.docId === this.docId) {
+                if (event.type === 'INSERT') {
+                    this.onAiInsert(event.text);
+                    this.notifier.showSuccess('Content inserted from Gemini Workspace');
+                } else if (event.type === 'REPLACE') {
+                    this.onAiReplace(event.text);
+                    this.notifier.showSuccess('Content replaced from Gemini Workspace');
+                }
+            }
+        });
     }
 
     onEditorCreated(quill: Quill): void {
+        this.quillInstance = quill;
         const toolbarModule = quill.getModule('toolbar') as { container: HTMLElement };
         this.setToolbarTooltips(toolbarModule.container);
+
+        quill.on('selection-change', (range) => {
+            if (range && range.length > 0) {
+                this.selectedText.set(quill.getText(range.index, range.length));
+            } else {
+                this.selectedText.set('');
+            }
+        });
+
+        quill.on('text-change', () => {
+            this.documentContent.set(quill.getText());
+        });
+
+        setTimeout(() => {
+            this.documentContent.set(quill.getText());
+        }, 150);
 
         const ydoc = this.collabService.connect(this.docId);
         const ytext = ydoc.getText('content');
@@ -402,7 +443,57 @@ export class Editor implements OnInit, OnDestroy {
         this.binding = new QuillBinding(ytext, quill, awareness);
     }
 
+    toggleAiSidebar(): void {
+        this.isAiSidebarOpen.update((v) => !v);
+        if (this.quillInstance) {
+            const range = this.quillInstance.getSelection();
+            if (range && range.length > 0) {
+                this.selectedText.set(this.quillInstance.getText(range.index, range.length));
+            }
+            this.documentContent.set(this.quillInstance.getText());
+        }
+    }
+
+    onAiInsert(markdownOrHtml: string): void {
+        if (!this.quillInstance || !this.canEdit()) return;
+        const cleanHtml = parseMarkdownToSanitizedHtml(markdownOrHtml);
+        const range = this.quillInstance.getSelection();
+        const index = range ? range.index : this.quillInstance.getLength();
+
+        const lengthBefore = this.quillInstance.getLength();
+        this.quillInstance.clipboard.dangerouslyPasteHTML(index, cleanHtml, 'user');
+        const insertedLength = this.quillInstance.getLength() - lengthBefore;
+
+        this.quillInstance.setSelection(index + Math.max(0, insertedLength), 0);
+        this.quillInstance.focus();
+    }
+
+    onAiReplace(markdownOrHtml: string): void {
+        if (!this.quillInstance || !this.canEdit()) return;
+        const cleanHtml = parseMarkdownToSanitizedHtml(markdownOrHtml);
+        const range = this.quillInstance.getSelection();
+
+        if (range && range.length > 0) {
+            const index = range.index;
+            this.quillInstance.deleteText(index, range.length, 'user');
+            const lengthBefore = this.quillInstance.getLength();
+            this.quillInstance.clipboard.dangerouslyPasteHTML(index, cleanHtml, 'user');
+            const insertedLength = this.quillInstance.getLength() - lengthBefore;
+            this.quillInstance.setSelection(index + Math.max(0, insertedLength), 0);
+        } else {
+            this.onAiInsert(markdownOrHtml);
+        }
+        this.quillInstance.focus();
+    }
+
+    openGeminiWorkspace(): void {
+        if (this.docId) {
+            window.open(`/documents/${this.docId}/ai`, '_blank');
+        }
+    }
+
     ngOnDestroy(): void {
+        this.syncSub?.unsubscribe();
         this.binding?.destroy();
         this.collabService.disconnect();
     }

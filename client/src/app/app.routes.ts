@@ -19,6 +19,20 @@ export const routes: Routes = [
                 loadComponent: () => import('./pages/editor/editor').then((m) => m.Editor),
             },
             {
+                path: 'documents/:id/ai',
+                loadComponent: () =>
+                    import('./pages/gemini-workspace/gemini-workspace').then(
+                        (m) => m.GeminiWorkspace,
+                    ),
+            },
+            {
+                path: 'editor/:id/ai',
+                loadComponent: () =>
+                    import('./pages/gemini-workspace/gemini-workspace').then(
+                        (m) => m.GeminiWorkspace,
+                    ),
+            },
+            {
                 path: 'profile',
                 loadComponent: () => import('./pages/profile/profile').then((m) => m.Profile),
             },

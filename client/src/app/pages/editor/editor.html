@@ -45,6 +45,18 @@
             }
         </button>
 
+        <button
+            mat-icon-button
+            class="gemini-toggle-btn"
+            [class.active]="isAiSidebarOpen()"
+            (click)="toggleAiSidebar()"
+            title="Ask Gemini"
+            aria-label="Toggle Gemini AI Assistant"
+            style="margin-right: 8px"
+        >
+            <mat-icon class="gemini-sparkle-icon">auto_awesome</mat-icon>
+        </button>
+
         @if (canEdit()) {
             <button
                 mat-icon-button
@@ -53,7 +65,9 @@
                 aria-label="Document cover"
                 style="margin-right: 8px"
             >
-                <mat-icon [style.color]="document()?.coverImageUrl ? '#1a73e8' : ''">image</mat-icon>
+                <mat-icon [style.color]="document()?.coverImageUrl ? '#1a73e8' : ''"
+                    >image</mat-icon
+                >
             </button>
         }
 
@@ -152,5 +166,19 @@
                 (onEditorCreated)="onEditorCreated($event)"
             />
         </div>
+
+        @if (isAiSidebarOpen()) {
+            <app-ai-sidebar
+                [documentId]="docId"
+                [documentTitle]="document()?.title || ''"
+                [canEdit]="canEdit()"
+                [selectedText]="selectedText()"
+                [documentContent]="documentContent()"
+                (closeSidebar)="toggleAiSidebar()"
+                (insertContent)="onAiInsert($event)"
+                (replaceSelection)="onAiReplace($event)"
+                (openWorkspace)="openGeminiWorkspace()"
+            />
+        }
     }
 </div>

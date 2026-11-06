@@ -82,6 +82,60 @@
     flex: 1;
 }
 
+.gemini-toggle-btn {
+    --mdc-icon-button-state-layer-size: 40px !important;
+    --mat-icon-button-state-layer-size: 40px !important;
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--mat-sys-on-surface-variant);
+    transition: all 0.2s ease;
+
+    .gemini-sparkle-icon {
+        color: #1a73e8;
+        font-size: 20px !important;
+        width: 20px !important;
+        height: 20px !important;
+        line-height: 20px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .mat-mdc-button-persistent-ripple,
+    .mat-ripple {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+    }
+
+    &.active {
+        background-color: var(--mat-sys-surface-container-high);
+        color: #1a73e8;
+    }
+
+    &:hover {
+        background-color: var(--mat-sys-surface-container-highest);
+    }
+}
+
+// =========================================================
+// MAIN EDITOR + SIDEBAR LAYOUT
+// =========================================================
+
+.editor-main-layout {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
 // =========================================================
 // QUILL WRAPPER
 // =========================================================

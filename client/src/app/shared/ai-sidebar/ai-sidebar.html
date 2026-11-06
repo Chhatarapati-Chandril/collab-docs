@@ -1,0 +1,368 @@
+@if (isMinimized()) {
+    <!-- Compact Minimized Floating Dock Pill -->
+    <div
+        class="gemini-minimized-pill"
+        (click)="toggleMinimize()"
+        role="button"
+        tabindex="0"
+        title="Restore Gemini Assistant"
+        (keydown.enter)="toggleMinimize()"
+    >
+        <mat-icon class="gemini-sparkle">auto_awesome</mat-icon>
+        <span class="pill-title">Gemini</span>
+        @if (isStreaming()) {
+            <span class="pill-dot-pulse"></span>
+        }
+        <button
+            mat-icon-button
+            class="pill-close-btn"
+            (click)="$event.stopPropagation(); closeSidebar.emit()"
+            title="Close Assistant"
+        >
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+} @else {
+    <!-- Floating, Draggable, Resizable AI Assistant Window -->
+    <div
+        class="gemini-floating-window"
+        [class.maximized]="isMaximized()"
+        [style.transform]="
+            !isMaximized()
+                ? 'translate3d(' + position().x + 'px, ' + position().y + 'px, 0)'
+                : 'none'
+        "
+        aria-label="Floating Gemini AI Assistant"
+    >
+        <!-- Grabbable Header -->
+        <header
+            class="window-header"
+            (pointerdown)="onHeaderPointerDown($event)"
+            (mousedown)="onHeaderMouseDown($event)"
+        >
+            <div class="header-brand">
+                <mat-icon class="drag-handle-icon" title="Drag window">drag_indicator</mat-icon>
+                <mat-icon class="gemini-sparkle">auto_awesome</mat-icon>
+                <span class="brand-title">Gemini</span>
+                <span class="badge-ai">AI</span>
+            </div>
+
+            <div class="window-controls">
+                <button
+                    mat-icon-button
+                    class="window-ctrl-btn"
+                    (click)="openWorkspaceInNewTab()"
+                    title="Open in Full Screen (New Tab)"
+                    aria-label="Open in Full Screen"
+                >
+                    <mat-icon>open_in_new</mat-icon>
+                </button>
+
+                <button
+                    mat-icon-button
+                    class="window-ctrl-btn"
+                    (click)="toggleMinimize()"
+                    title="Minimize"
+                    aria-label="Minimize"
+                >
+                    <mat-icon>remove</mat-icon>
+                </button>
+
+                <button
+                    mat-icon-button
+                    class="window-ctrl-btn"
+                    (click)="toggleMaximize()"
+                    [title]="isMaximized() ? 'Restore window size' : 'Maximize window'"
+                    aria-label="Maximize or Restore"
+                >
+                    <mat-icon>{{ isMaximized() ? 'filter_none' : 'crop_square' }}</mat-icon>
+                </button>
+
+                <button
+                    mat-icon-button
+                    class="window-ctrl-btn close-btn"
+                    (click)="closeSidebar.emit()"
+                    title="Close Assistant"
+                    aria-label="Close"
+                >
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+        </header>
+
+        <!-- Conversational Message Thread -->
+        <div #messagesContainer class="messages-list">
+            @for (msg of messages(); track msg.id) {
+                <article
+                    class="message-wrapper"
+                    [class.user]="msg.role === 'user'"
+                    [class.model]="msg.role === 'model'"
+                    [class.welcome-message]="msg.id === 'welcome'"
+                >
+                    <div class="message-avatar">
+                        @if (msg.role === 'user') {
+                            <mat-icon>person</mat-icon>
+                        } @else {
+                            <mat-icon class="gemini-avatar-sparkle">auto_awesome</mat-icon>
+                        }
+                    </div>
+
+                    <div class="message-bubble">
+                        @if (msg.isStreaming && !msg.content) {
+                            <div class="streaming-loader">
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                                <span class="dot"></span>
+                            </div>
+                        } @else {
+                            <div
+                                class="message-content"
+                                [innerHTML]="formatMarkdown(msg.content)"
+                            ></div>
+                        }
+
+                        @if (msg.error) {
+                            <div class="message-error">
+                                <mat-icon>error_outline</mat-icon>
+                                <span>{{ msg.error }}</span>
+                            </div>
+                        }
+
+                        <!-- Response Actions: Insert, Replace, Copy, Regenerate -->
+                        @if (msg.role === 'model' && msg.content && !msg.isStreaming) {
+                            <div class="message-actions">
+                                @if (canEdit()) {
+                                    <button
+                                        mat-button
+                                        class="action-pill-btn"
+                                        (click)="onInsert(msg.content)"
+                                        title="Insert into document at cursor"
+                                    >
+                                        <mat-icon>input</mat-icon>
+                                        Insert
+                                    </button>
+
+                                    @if (hasSelection()) {
+                                        <button
+                                            mat-button
+                                            class="action-pill-btn"
+                                            (click)="onReplace(msg.content)"
+                                            title="Replace selected text"
+                                        >
+                                            <mat-icon>find_replace</mat-icon>
+                                            Replace
+                                        </button>
+                                    }
+                                }
+
+                                <button
+                                    mat-icon-button
+                                    class="action-icon-btn"
+                                    (click)="copyToClipboard(msg.id, msg.content)"
+                                    title="Copy to clipboard"
+                                >
+                                    <mat-icon>
+                                        {{
+                                            copiedMessageId() === msg.id ? 'check' : 'content_copy'
+                                        }}
+                                    </mat-icon>
+                                </button>
+
+                                <button
+                                    mat-icon-button
+                                    class="action-icon-btn"
+                                    (click)="regenerateLast()"
+                                    title="Regenerate response"
+                                >
+                                    <mat-icon>refresh</mat-icon>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+
+        <!-- Selection Quick Bar (when user has highlighted text in the document) -->
+        @if (hasSelection()) {
+            <div class="selection-pill-bar">
+                <span class="selection-label">
+                    <mat-icon>format_quote</mat-icon>
+                    "{{ selectedSnippet() }}"
+                </span>
+                <div class="selection-actions">
+                    <button
+                        mat-button
+                        class="chip-action"
+                        [disabled]="isStreaming()"
+                        (click)="runAction(AiActionType.IMPROVE)"
+                    >
+                        Improve
+                    </button>
+                    <button
+                        mat-button
+                        class="chip-action"
+                        [disabled]="isStreaming()"
+                        (click)="runAction(AiActionType.FIX_GRAMMAR)"
+                    >
+                        Fix grammar
+                    </button>
+                    <button
+                        mat-button
+                        class="chip-action"
+                        [disabled]="isStreaming()"
+                        (click)="runAction(AiActionType.REWRITE)"
+                    >
+                        Rewrite
+                    </button>
+                    <button
+                        mat-button
+                        class="chip-action"
+                        [disabled]="isStreaming()"
+                        (click)="runAction(AiActionType.EXPLAIN)"
+                    >
+                        Explain
+                    </button>
+                </div>
+            </div>
+        }
+
+        <!-- Fixed Prompt Dock with Tools Menu -->
+        <footer class="chat-input-bar">
+            @if (isStreaming()) {
+                <div class="streaming-progress">
+                    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                    <button
+                        mat-stroked-button
+                        color="warn"
+                        class="stop-btn"
+                        (click)="stopGeneration()"
+                    >
+                        <mat-icon>stop</mat-icon>
+                        Stop generating
+                    </button>
+                </div>
+            }
+
+            <div class="input-row">
+                <!-- Compact Tools Menu Trigger -->
+                <button
+                    mat-icon-button
+                    type="button"
+                    class="tools-menu-btn"
+                    [matMenuTriggerFor]="toolsMenu"
+                    [disabled]="isStreaming()"
+                    title="Tools & Actions"
+                    aria-label="Open AI Tools Menu"
+                >
+                    <mat-icon>auto_awesome</mat-icon>
+                </button>
+
+                <!-- Multiline Prompt Input -->
+                <textarea
+                    #chatTextareaRef
+                    class="chat-textarea"
+                    [formControl]="chatInput"
+                    [placeholder]="CONSTANTS.chatPlaceholder"
+                    rows="1"
+                    (input)="onChatInput($event)"
+                    (keydown)="onChatKeydown($event)"
+                ></textarea>
+
+                <!-- Send Button -->
+                <button
+                    mat-mini-fab
+                    color="primary"
+                    class="send-btn"
+                    [disabled]="!chatInput.value.trim() || isStreaming()"
+                    (click)="sendChatMessage()"
+                    title="Send message (Ctrl+Enter)"
+                    aria-label="Send message"
+                >
+                    <mat-icon>send</mat-icon>
+                </button>
+            </div>
+        </footer>
+
+        <!-- Compact Tools Menu -->
+        <mat-menu
+            #toolsMenu="matMenu"
+            xPosition="before"
+            yPosition="above"
+            class="gemini-tools-menu"
+        >
+            <button mat-menu-item (click)="runAction(AiActionType.SUMMARIZE)">
+                <mat-icon>summarize</mat-icon>
+                <span>Summarize document</span>
+            </button>
+
+            <button mat-menu-item (click)="runAction(AiActionType.CONTINUE)">
+                <mat-icon>fast_forward</mat-icon>
+                <span>Continue writing</span>
+            </button>
+
+            <button mat-menu-item (click)="runAction(AiActionType.IMPROVE)">
+                <mat-icon>diamond</mat-icon>
+                <span>Improve writing</span>
+            </button>
+
+            <button mat-menu-item (click)="runAction(AiActionType.FIX_GRAMMAR)">
+                <mat-icon>spellcheck</mat-icon>
+                <span>Fix grammar & spelling</span>
+            </button>
+
+            <button mat-menu-item (click)="runAction(AiActionType.REWRITE)">
+                <mat-icon>cached</mat-icon>
+                <span>Rewrite text</span>
+            </button>
+
+            <button mat-menu-item (click)="runAction(AiActionType.EXPAND)">
+                <mat-icon>unfold_more</mat-icon>
+                <span>Expand text</span>
+            </button>
+
+            <button mat-menu-item (click)="runAction(AiActionType.SHORTEN)">
+                <mat-icon>unfold_less</mat-icon>
+                <span>Shorten text</span>
+            </button>
+
+            <button mat-menu-item (click)="runAction(AiActionType.EXPLAIN)">
+                <mat-icon>help_outline</mat-icon>
+                <span>Explain selected text</span>
+            </button>
+
+            <!-- Tone Submenu -->
+            <button mat-menu-item [matMenuTriggerFor]="toneSubMenu">
+                <mat-icon>mood</mat-icon>
+                <span>Change tone</span>
+            </button>
+
+            <!-- Translate Submenu -->
+            <button mat-menu-item [matMenuTriggerFor]="translateSubMenu">
+                <mat-icon>translate</mat-icon>
+                <span>Translate</span>
+            </button>
+        </mat-menu>
+
+        <!-- Tone Submenu -->
+        <mat-menu #toneSubMenu="matMenu">
+            @for (tone of CONSTANTS.tones; track tone) {
+                <button mat-menu-item (click)="runAction(AiActionType.CHANGE_TONE, { tone })">
+                    <span>{{ tone }}</span>
+                </button>
+            }
+        </mat-menu>
+
+        <!-- Translate Submenu -->
+        <mat-menu #translateSubMenu="matMenu">
+            @for (lang of CONSTANTS.languages; track lang) {
+                <button
+                    mat-menu-item
+                    (click)="runAction(AiActionType.TRANSLATE, { targetLanguage: lang })"
+                >
+                    <span>{{ lang }}</span>
+                </button>
+            }
+        </mat-menu>
+    </div>
+}

@@ -1,0 +1,325 @@
+<div class="workspace-page">
+    <!-- Top Header Bar -->
+    <header class="workspace-header">
+        <div class="header-left">
+            <a mat-button [routerLink]="['/editor', docId()]" class="back-link">
+                <mat-icon>arrow_back</mat-icon>
+                <span>Back to Document</span>
+            </a>
+
+            <div class="header-divider"></div>
+
+            <div class="doc-header-info">
+                <h1 class="doc-title">{{ document()?.title || 'Untitled Document' }}</h1>
+                <span class="workspace-badge">
+                    <mat-icon class="sparkle-icon">auto_awesome</mat-icon>
+                    Gemini Workspace
+                </span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <span class="stat-item" title="Word count">
+                <mat-icon>text_snippet</mat-icon>
+                {{ wordCount() }} words
+            </span>
+
+            <mat-chip [class]="'status-' + connectionStatus()">
+                <mat-icon matChipAvatar>
+                    {{ connectionStatus() === 'connected' ? 'cloud_done' : 'cloud_sync' }}
+                </mat-icon>
+                {{ connectionStatus() === 'connected' ? 'Live' : 'Connecting...' }}
+            </mat-chip>
+
+            @if (role()) {
+                <mat-chip class="role-chip">{{ role() }}</mat-chip>
+            }
+        </div>
+    </header>
+
+    @if (isLoading()) {
+        <div class="center-spinner">
+            <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+            <p>Loading document context for Gemini...</p>
+        </div>
+    } @else if (accessDenied()) {
+        <div class="fatal-error">
+            <mat-icon>lock_outline</mat-icon>
+            <h2>Access Denied</h2>
+            <p>You do not have permission to view or interact with this document.</p>
+            <button mat-flat-button color="primary" routerLink="/home">Back to Home</button>
+        </div>
+    } @else if (fatalError()) {
+        <div class="fatal-error">
+            <mat-icon>error_outline</mat-icon>
+            <h2>Document Unavailable</h2>
+            <p>{{ fatalError() }}</p>
+            <button mat-flat-button color="primary" routerLink="/home">Back to Documents</button>
+        </div>
+    } @else {
+        <!-- Main Conversation Area -->
+        <main class="workspace-main">
+            <div #messagesScrollArea class="conversation-scroll">
+                <div class="conversation-container">
+                    <!-- Starter Cards (when starting) -->
+                    @if (messages().length <= 1) {
+                        <div class="starters-grid">
+                            @for (s of CONSTANTS.suggestedStarters; track s.title) {
+                                <button
+                                    type="button"
+                                    class="starter-card"
+                                    [disabled]="isStreaming()"
+                                    (click)="sendPrompt(s.prompt)"
+                                >
+                                    <mat-icon class="starter-icon">{{ s.icon }}</mat-icon>
+                                    <span class="starter-title">{{ s.title }}</span>
+                                </button>
+                            }
+                        </div>
+                    }
+
+                    <!-- Messages Thread -->
+                    @for (msg of messages(); track msg.id) {
+                        <article
+                            class="chat-message-row"
+                            [class.user]="msg.role === 'user'"
+                            [class.model]="msg.role === 'model'"
+                            [class.welcome-message]="msg.id === 'ws-welcome'"
+                        >
+                            <div class="msg-avatar">
+                                @if (msg.role === 'user') {
+                                    <mat-icon>person</mat-icon>
+                                } @else {
+                                    <mat-icon class="gemini-sparkle">auto_awesome</mat-icon>
+                                }
+                            </div>
+
+                            <div class="msg-body">
+                                <div class="msg-header">
+                                    <span class="msg-author">{{
+                                        msg.role === 'user' ? 'You' : 'Gemini'
+                                    }}</span>
+                                    <time class="msg-time">{{
+                                        msg.timestamp | date: 'shortTime'
+                                    }}</time>
+                                </div>
+
+                                @if (msg.isStreaming && !msg.content) {
+                                    <div class="streaming-indicator">
+                                        <mat-progress-spinner
+                                            mode="indeterminate"
+                                            diameter="20"
+                                        ></mat-progress-spinner>
+                                        <span>Gemini is thinking and drafting...</span>
+                                    </div>
+                                } @else {
+                                    <div
+                                        class="msg-text-content"
+                                        [innerHTML]="formatMarkdown(msg.content)"
+                                    ></div>
+                                }
+
+                                @if (msg.error) {
+                                    <div class="msg-error-banner">
+                                        <mat-icon>error_outline</mat-icon>
+                                        <span>{{ msg.error }}</span>
+                                    </div>
+                                }
+
+                                <!-- Actions Bar -->
+                                @if (msg.role === 'model' && msg.content && !msg.isStreaming) {
+                                    <div class="msg-actions-bar">
+                                        @if (canEdit()) {
+                                            <button
+                                                mat-flat-button
+                                                color="primary"
+                                                class="doc-action-btn"
+                                                (click)="insertIntoDocument(msg.content)"
+                                                title="Insert into document"
+                                            >
+                                                <mat-icon>input</mat-icon>
+                                                Insert into Document
+                                            </button>
+
+                                            <button
+                                                mat-stroked-button
+                                                class="doc-action-btn"
+                                                (click)="replaceDocumentContent(msg.content)"
+                                                title="Replace document with this response"
+                                            >
+                                                <mat-icon>find_replace</mat-icon>
+                                                Replace Document
+                                            </button>
+                                        }
+
+                                        <button
+                                            mat-icon-button
+                                            class="util-btn"
+                                            (click)="copyToClipboard(msg.id, msg.content)"
+                                            title="Copy to clipboard"
+                                        >
+                                            <mat-icon>
+                                                {{
+                                                    copiedMessageId() === msg.id
+                                                        ? 'check'
+                                                        : 'content_copy'
+                                                }}
+                                            </mat-icon>
+                                        </button>
+
+                                        <button
+                                            mat-icon-button
+                                            class="util-btn"
+                                            (click)="regenerateLast()"
+                                            title="Regenerate response"
+                                        >
+                                            <mat-icon>refresh</mat-icon>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+                        </article>
+                    }
+                </div>
+            </div>
+
+            <!-- Fixed Bottom Prompt Dock -->
+            <footer class="workspace-input-dock">
+                <div class="dock-container">
+                    @if (isStreaming()) {
+                        <div class="streaming-control-row">
+                            <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                            <button
+                                mat-stroked-button
+                                color="warn"
+                                class="stop-generating-btn"
+                                (click)="stopGeneration()"
+                            >
+                                <mat-icon>stop</mat-icon>
+                                Stop Generating
+                            </button>
+                        </div>
+                    }
+
+                    <div class="dock-input-field">
+                        <!-- Tools Menu Trigger -->
+                        <button
+                            mat-icon-button
+                            type="button"
+                            class="tools-menu-btn"
+                            [matMenuTriggerFor]="wsToolsMenu"
+                            [disabled]="isStreaming()"
+                            title="Tools & Actions"
+                            aria-label="Open AI Tools Menu"
+                        >
+                            <mat-icon>auto_awesome</mat-icon>
+                        </button>
+
+                        <textarea
+                            #promptTextareaRef
+                            class="prompt-textarea"
+                            [formControl]="promptControl"
+                            [placeholder]="CONSTANTS.promptPlaceholder"
+                            rows="1"
+                            (input)="onPromptInput($event)"
+                            (keydown)="onPromptKeydown($event)"
+                        ></textarea>
+
+                        <button
+                            mat-mini-fab
+                            color="primary"
+                            class="send-btn"
+                            [disabled]="!promptControl.value.trim() || isStreaming()"
+                            (click)="sendPrompt()"
+                            title="Ask Gemini (Ctrl+Enter)"
+                            aria-label="Send message"
+                        >
+                            <mat-icon>send</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </footer>
+        </main>
+
+        <!-- Compact Tools Menu -->
+        <mat-menu
+            #wsToolsMenu="matMenu"
+            xPosition="after"
+            yPosition="above"
+            class="gemini-tools-menu"
+        >
+            <button mat-menu-item (click)="runAction(AiActionType.SUMMARIZE)">
+                <mat-icon>summarize</mat-icon>
+                <span>Summarize document</span>
+            </button>
+
+            <button mat-menu-item (click)="runAction(AiActionType.CONTINUE)">
+                <mat-icon>fast_forward</mat-icon>
+                <span>Continue writing</span>
+            </button>
+
+            <button mat-menu-item (click)="runAction(AiActionType.IMPROVE)">
+                <mat-icon>diamond</mat-icon>
+                <span>Improve writing</span>
+            </button>
+
+            <button mat-menu-item (click)="runAction(AiActionType.FIX_GRAMMAR)">
+                <mat-icon>spellcheck</mat-icon>
+                <span>Fix grammar & spelling</span>
+            </button>
+
+            <button mat-menu-item (click)="runAction(AiActionType.REWRITE)">
+                <mat-icon>cached</mat-icon>
+                <span>Rewrite text</span>
+            </button>
+
+            <button mat-menu-item (click)="runAction(AiActionType.EXPAND)">
+                <mat-icon>unfold_more</mat-icon>
+                <span>Expand text</span>
+            </button>
+
+            <button mat-menu-item (click)="runAction(AiActionType.SHORTEN)">
+                <mat-icon>unfold_less</mat-icon>
+                <span>Shorten text</span>
+            </button>
+
+            <button mat-menu-item (click)="runAction(AiActionType.EXPLAIN)">
+                <mat-icon>help_outline</mat-icon>
+                <span>Explain concepts</span>
+            </button>
+
+            <!-- Tone Submenu -->
+            <button mat-menu-item [matMenuTriggerFor]="wsToneSubMenu">
+                <mat-icon>mood</mat-icon>
+                <span>Change tone</span>
+            </button>
+
+            <!-- Translate Submenu -->
+            <button mat-menu-item [matMenuTriggerFor]="wsTranslateSubMenu">
+                <mat-icon>translate</mat-icon>
+                <span>Translate document</span>
+            </button>
+        </mat-menu>
+
+        <!-- Tone Submenu -->
+        <mat-menu #wsToneSubMenu="matMenu">
+            @for (tone of CONSTANTS.tones; track tone) {
+                <button mat-menu-item (click)="runAction(AiActionType.CHANGE_TONE, { tone })">
+                    <span>{{ tone }}</span>
+                </button>
+            }
+        </mat-menu>
+
+        <!-- Translate Submenu -->
+        <mat-menu #wsTranslateSubMenu="matMenu">
+            @for (lang of CONSTANTS.languages; track lang) {
+                <button
+                    mat-menu-item
+                    (click)="runAction(AiActionType.TRANSLATE, { targetLanguage: lang })"
+                >
+                    <span>{{ lang }}</span>
+                </button>
+            }
+        </mat-menu>
+    }
+</div>
