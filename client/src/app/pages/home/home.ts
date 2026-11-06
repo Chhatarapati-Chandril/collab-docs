@@ -116,7 +116,10 @@ export class Home implements OnInit {
             const doc = await this.docsService.createDocument();
             this.router.navigate(['/editor', doc.id]);
         } catch {
-            this.snackBar.open('Failed to create document', 'Close', { duration: 3000, panelClass: 'error-snackbar' });
+            this.snackBar.open('Failed to create document', 'Close', {
+                duration: 3000,
+                panelClass: 'error-snackbar',
+            });
         }
     }
 

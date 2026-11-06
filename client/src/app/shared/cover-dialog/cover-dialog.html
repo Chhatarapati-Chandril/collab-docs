@@ -82,7 +82,9 @@
                 @for (template of filteredTemplates(); track template.id) {
                     <div
                         class="template-card"
-                        [class.selected]="selectedTemplateId() === template.id && selectedType() === 'TEMPLATE'"
+                        [class.selected]="
+                            selectedTemplateId() === template.id && selectedType() === 'TEMPLATE'
+                        "
                         (click)="selectTemplate(template)"
                         tabindex="0"
                         role="button"
@@ -95,7 +97,10 @@
                                 class="template-thumb-img"
                                 loading="lazy"
                             />
-                            @if (selectedTemplateId() === template.id && selectedType() === 'TEMPLATE') {
+                            @if (
+                                selectedTemplateId() === template.id &&
+                                selectedType() === 'TEMPLATE'
+                            ) {
                                 <div class="selection-badge">
                                     <mat-icon>check_circle</mat-icon>
                                 </div>
@@ -136,7 +141,9 @@
                     @if (isUploading()) {
                         <div class="upload-state">
                             <mat-spinner diameter="44"></mat-spinner>
-                            <span class="upload-text">Optimizing and uploading to Cloudinary...</span>
+                            <span class="upload-text"
+                                >Optimizing and uploading to Cloudinary...</span
+                            >
                         </div>
                     } @else {
                         <div class="drop-content">
@@ -145,9 +152,15 @@
                             </div>
                             <h3 class="drop-title">Drop your cover image here, or browse</h3>
                             <p class="drop-desc">
-                                16:9 ratio recommended &bull; 1600 &times; 900 px &bull; JPEG, PNG or WebP &bull; Max 5 MB
+                                16:9 ratio recommended &bull; 1600 &times; 900 px &bull; JPEG, PNG
+                                or WebP &bull; Max 5 MB
                             </p>
-                            <button mat-stroked-button color="primary" class="browse-btn" (click)="$event.stopPropagation(); fileInput.click()">
+                            <button
+                                mat-stroked-button
+                                color="primary"
+                                class="browse-btn"
+                                (click)="$event.stopPropagation(); fileInput.click()"
+                            >
                                 Choose File
                             </button>
                         </div>

@@ -5,16 +5,18 @@
     z-index: 100;
     color: var(--mat-sys-on-surface);
     border-bottom: 1px solid var(--mat-sys-surface-container-highest);
-    padding: 0 32px; // Match right and left padding
-    height: 64px;
-    box-shadow: 0 1px 2px var(--mat-sys-shadow, rgba(0, 0, 0, 0.1)); // very minimal shadow
+    padding: 0 28px;
+    height: var(--app-navbar-height, 52px);
+    min-height: var(--app-navbar-height, 52px) !important;
+    max-height: var(--app-navbar-height, 52px);
+    box-shadow: 0 1px 2px var(--mat-sys-shadow, rgba(0, 0, 0, 0.08));
 }
 
 .brand {
     font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     font-weight: 500;
-    font-size: 26px;
+    font-size: 23px;
     letter-spacing: -0.5px;
     color: var(--mat-sys-on-surface);
     cursor: pointer;
@@ -34,6 +36,104 @@
     display: flex;
     align-items: center;
     gap: 16px; // Fixed comfortable spacing between icons
+    position: relative;
+}
+
+.theme-menu-anchor {
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.theme-toggle-btn {
+    --mdc-icon-button-state-layer-size: 40px !important;
+    --mat-icon-button-state-layer-size: 40px !important;
+    width: 40px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--mat-sys-on-surface);
+    transition:
+        transform 0.15s cubic-bezier(0.16, 1, 0.3, 1),
+        background-color 0.15s ease;
+
+    mat-icon {
+        font-size: 20px !important;
+        width: 20px !important;
+        height: 20px !important;
+        line-height: 20px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    &:hover {
+        background-color: var(--mat-sys-surface-container-highest);
+    }
+
+    &:active {
+        transform: scale(0.92);
+    }
+}
+
+::ng-deep .theme-dropdown-menu {
+    min-width: 200px !important;
+    border-radius: 12px !important;
+    border: 1px solid var(--mat-sys-outline-variant) !important;
+    background: var(--mat-sys-surface) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16) !important;
+    padding: 4px !important;
+
+    .mat-mdc-menu-item {
+        border-radius: 8px !important;
+        height: 40px !important;
+        margin: 2px 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        font-size: 13.5px !important;
+        color: var(--mat-sys-on-surface) !important;
+        padding: 0 12px !important;
+
+        .menu-item-icon {
+            font-size: 18px !important;
+            width: 18px !important;
+            height: 18px !important;
+            color: var(--mat-sys-on-surface-variant);
+            margin-right: 0 !important;
+        }
+
+        .menu-item-text {
+            flex: 1;
+        }
+
+        .check-icon {
+            font-size: 18px !important;
+            width: 18px !important;
+            height: 18px !important;
+            color: var(--mat-sys-primary) !important;
+            margin-left: auto !important;
+            margin-right: 0 !important;
+        }
+
+        &.selected {
+            background-color: var(--mat-sys-surface-container-high) !important;
+            color: var(--mat-sys-primary) !important;
+            font-weight: 500 !important;
+
+            .menu-item-icon {
+                color: var(--mat-sys-primary) !important;
+            }
+        }
+
+        &:hover:not(.selected) {
+            background-color: var(--mat-sys-surface-container) !important;
+        }
+    }
 }
 
 ::ng-deep .user-profile-menu {

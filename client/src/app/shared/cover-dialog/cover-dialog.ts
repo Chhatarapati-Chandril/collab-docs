@@ -56,9 +56,7 @@ export class CoverDialog {
     readonly activeTab = signal<'gallery' | 'upload'>('gallery');
 
     // Currently selected cover state
-    readonly selectedUrl = signal<string>(
-        this.data.currentCoverImageUrl || COVER_TEMPLATES[0].url,
-    );
+    readonly selectedUrl = signal<string>(this.data.currentCoverImageUrl || COVER_TEMPLATES[0].url);
     readonly selectedPublicId = signal<string | null>(this.data.currentCoverPublicId || null);
     readonly selectedType = signal<'TEMPLATE' | 'CUSTOM'>(
         (this.data.currentCoverType as 'TEMPLATE' | 'CUSTOM') || 'TEMPLATE',
@@ -151,7 +149,10 @@ export class CoverDialog {
             this.selectedTemplateId.set(null);
         } catch (err: unknown) {
             const error = err as { error?: { message?: string }; message?: string };
-            const msg = error?.error?.message || error?.message || 'Failed to upload image. Please try again.';
+            const msg =
+                error?.error?.message ||
+                error?.message ||
+                'Failed to upload image. Please try again.';
             this.uploadError.set(msg);
         } finally {
             this.isUploading.set(false);

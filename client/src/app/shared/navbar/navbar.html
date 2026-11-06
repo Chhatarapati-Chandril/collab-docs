@@ -4,18 +4,70 @@
     <span class="spacer"></span>
 
     <div class="toolbar-actions">
-        <mat-button-toggle-group
-            [value]="themeService.themeSig()"
-            (change)="themeService.setTheme($event.value)"
-            hideSingleSelectionIndicator="true"
-            class="theme-toggle"
+        <!-- Compact Theme Selector -->
+        <span
+            [matMenuTriggerFor]="themeMenu"
+            #themeMenuTrigger="matMenuTrigger"
+            class="theme-menu-anchor"
+        ></span>
+        <button
+            mat-icon-button
+            class="theme-toggle-btn"
+            [matTooltip]="themeTooltip()"
+            (click)="onThemeButtonClick()"
+            (contextmenu)="onThemeContextMenu($event)"
+            (keydown)="onThemeKeydown($event)"
+            (touchstart)="onTouchStart()"
+            (touchend)="onTouchEnd()"
+            (touchcancel)="onTouchEnd()"
+            [attr.aria-label]="themeAriaLabel()"
         >
-            <mat-button-toggle value="light"><mat-icon>light_mode</mat-icon></mat-button-toggle>
-            <mat-button-toggle value="dark"><mat-icon>dark_mode</mat-icon></mat-button-toggle>
-            <mat-button-toggle value="system"
-                ><mat-icon>brightness_auto</mat-icon></mat-button-toggle
+            <mat-icon>{{ themeIcon() }}</mat-icon>
+        </button>
+
+        <mat-menu #themeMenu="matMenu" class="theme-dropdown-menu" xPosition="before">
+            <button
+                mat-menu-item
+                (click)="selectTheme('light')"
+                [class.selected]="themeService.themeSig() === 'light'"
+                role="menuitemradio"
+                [attr.aria-checked]="themeService.themeSig() === 'light'"
             >
-        </mat-button-toggle-group>
+                <mat-icon class="menu-item-icon">light_mode</mat-icon>
+                <span class="menu-item-text">Light</span>
+                @if (themeService.themeSig() === 'light') {
+                    <mat-icon class="check-icon">check</mat-icon>
+                }
+            </button>
+
+            <button
+                mat-menu-item
+                (click)="selectTheme('dark')"
+                [class.selected]="themeService.themeSig() === 'dark'"
+                role="menuitemradio"
+                [attr.aria-checked]="themeService.themeSig() === 'dark'"
+            >
+                <mat-icon class="menu-item-icon">dark_mode</mat-icon>
+                <span class="menu-item-text">Dark</span>
+                @if (themeService.themeSig() === 'dark') {
+                    <mat-icon class="check-icon">check</mat-icon>
+                }
+            </button>
+
+            <button
+                mat-menu-item
+                (click)="selectTheme('system')"
+                [class.selected]="themeService.themeSig() === 'system'"
+                role="menuitemradio"
+                [attr.aria-checked]="themeService.themeSig() === 'system'"
+            >
+                <mat-icon class="menu-item-icon">desktop_windows</mat-icon>
+                <span class="menu-item-text">System / Automatic</span>
+                @if (themeService.themeSig() === 'system') {
+                    <mat-icon class="check-icon">check</mat-icon>
+                }
+            </button>
+        </mat-menu>
 
         <button
             mat-icon-button

@@ -63,7 +63,11 @@ export class Docs {
 
     async setCover(
         id: string,
-        payload: { coverImageUrl: string; coverPublicId?: string | null; coverType?: string | null },
+        payload: {
+            coverImageUrl: string;
+            coverPublicId?: string | null;
+            coverType?: string | null;
+        },
     ): Promise<Document> {
         const res = await firstValueFrom(
             this.http.patch<ApiResponse<Document>>(`${this.baseUrl}/${id}/cover`, payload),
@@ -82,7 +86,10 @@ export class Docs {
         const formData = new FormData();
         formData.append('file', file);
         const res = await firstValueFrom(
-            this.http.post<ApiResponse<CoverUploadResponse>>(`${this.baseUrl}/cover/upload`, formData),
+            this.http.post<ApiResponse<CoverUploadResponse>>(
+                `${this.baseUrl}/cover/upload`,
+                formData,
+            ),
         );
         return res.data;
     }

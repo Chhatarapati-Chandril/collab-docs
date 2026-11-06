@@ -1,4 +1,4 @@
-import { Injectable, signal, effect } from '@angular/core';
+import { Injectable, signal, effect, computed } from '@angular/core';
 
 export type ThemeType = 'light' | 'dark' | 'system';
 const THEME_STORAGE_KEY = 'collab_docs_theme';
@@ -8,10 +8,35 @@ const THEME_STORAGE_KEY = 'collab_docs_theme';
 })
 export class ThemeService {
     readonly themeSig = signal<ThemeType>('system');
+    readonly systemDarkSig = signal<boolean>(
+        typeof window !== 'undefined' && window.matchMedia
+            ? window.matchMedia('(prefers-color-scheme: dark)').matches
+            : false,
+    );
     private isInitialized = false;
+
+    readonly effectiveTheme = computed<'light' | 'dark'>(() => {
+        const theme = this.themeSig();
+        if (theme === 'system') {
+            return this.systemDarkSig() ? 'dark' : 'light';
+        }
+        return theme;
+    });
 
     constructor() {
         this.loadTheme();
+
+        // Listen for OS / system color scheme changes dynamically
+        if (typeof window !== 'undefined' && window.matchMedia) {
+            const mql = window.matchMedia('(prefers-color-scheme: dark)');
+            mql.addEventListener('change', (e) => {
+                this.systemDarkSig.set(e.matches);
+                if (this.themeSig() === 'system') {
+                    this.applyTheme('system', false);
+                }
+            });
+        }
+
         effect(() => {
             const theme = this.themeSig();
             if (!this.isInitialized) {

@@ -3,6 +3,7 @@
 html {
     height: 100%;
     color-scheme: light dark;
+    --app-navbar-height: 52px;
     @include mat.theme(
         (
             color: (
@@ -131,6 +132,46 @@ body {
 ::selection {
     background-color: #ff9e80;
     color: #1a1a1a;
+}
+
+/* MDC Icon Button Hover Circle & Alignment Normalization */
+.mat-mdc-icon-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+
+    .mat-icon {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        line-height: 1 !important;
+        margin: 0 !important;
+        top: 0 !important;
+        position: relative !important;
+    }
+
+    .mat-mdc-button-touch-target {
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+    }
+
+    .mat-mdc-button-persistent-ripple,
+    .mat-ripple {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        border-radius: 50% !important;
+    }
+}
+
+/* MDC Dialog Form Field Floating Label Clipping Fix */
+.mat-mdc-dialog-content {
+    &:has(.mat-mdc-form-field-appearance-outline) {
+        padding-top: 8px !important;
+    }
 }
 
 /* Cover Selection Dialog Styling */

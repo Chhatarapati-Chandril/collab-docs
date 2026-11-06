@@ -32,7 +32,8 @@ export const COVER_TEMPLATES: CoverTemplate[] = [
         id: 'minimal-zenith',
         name: 'Zenith Travertine',
         category: 'Minimal & Elegant',
-        description: 'Warm sandstone arch with delicate serif typography & balanced negative space.',
+        description:
+            'Warm sandstone arch with delicate serif typography & balanced negative space.',
         url: '/covers/templates/minimal-zenith.svg',
         aspectRatio: '16:9',
     },
@@ -40,7 +41,8 @@ export const COVER_TEMPLATES: CoverTemplate[] = [
         id: 'minimal-monochrome',
         name: 'Swiss Monochrome',
         category: 'Minimal & Elegant',
-        description: 'Clean typographic grid system with editorial precision and crosshair framing.',
+        description:
+            'Clean typographic grid system with editorial precision and crosshair framing.',
         url: '/covers/templates/minimal-monochrome.svg',
         aspectRatio: '16:9',
     },
@@ -50,7 +52,8 @@ export const COVER_TEMPLATES: CoverTemplate[] = [
         id: 'business-azure',
         name: 'Executive Azure',
         category: 'Professional & Business',
-        description: 'Deep sapphire corporate gradient with flowing isometric lines & precision grid.',
+        description:
+            'Deep sapphire corporate gradient with flowing isometric lines & precision grid.',
         url: '/covers/templates/business-azure.svg',
         aspectRatio: '16:9',
     },
@@ -86,7 +89,8 @@ export const COVER_TEMPLATES: CoverTemplate[] = [
         id: 'nature-aurora',
         name: 'Nordic Aurora',
         category: 'Nature & Travel',
-        description: 'Ethereal emerald and cyan boreal light over dark mountain topographic contours.',
+        description:
+            'Ethereal emerald and cyan boreal light over dark mountain topographic contours.',
         url: '/covers/templates/nature-aurora.svg',
         aspectRatio: '16:9',
     },
@@ -94,7 +98,8 @@ export const COVER_TEMPLATES: CoverTemplate[] = [
         id: 'nature-sahara',
         name: 'Sahara Horizon',
         category: 'Nature & Travel',
-        description: 'Golden hour desert sand dunes with warm amber lighting and organic ridge lines.',
+        description:
+            'Golden hour desert sand dunes with warm amber lighting and organic ridge lines.',
         url: '/covers/templates/nature-sahara.svg',
         aspectRatio: '16:9',
     },
@@ -104,7 +109,8 @@ export const COVER_TEMPLATES: CoverTemplate[] = [
         id: 'tech-quantum',
         name: 'Quantum Matrix',
         category: 'Technology & Abstract',
-        description: 'Obsidian cyan isometric circuitry with cybernetic nodes and system telemetry.',
+        description:
+            'Obsidian cyan isometric circuitry with cybernetic nodes and system telemetry.',
         url: '/covers/templates/tech-quantum.svg',
         aspectRatio: '16:9',
     },
@@ -122,7 +128,8 @@ export const COVER_TEMPLATES: CoverTemplate[] = [
         id: 'dark-obsidian-gold',
         name: 'Obsidian & Gold',
         category: 'Dark & Premium',
-        description: 'Luxury midnight velvet with metallic gold geometric hairlines and atelier typography.',
+        description:
+            'Luxury midnight velvet with metallic gold geometric hairlines and atelier typography.',
         url: '/covers/templates/dark-obsidian-gold.svg',
         aspectRatio: '16:9',
     },
@@ -130,7 +137,8 @@ export const COVER_TEMPLATES: CoverTemplate[] = [
         id: 'dark-carbon-noir',
         name: 'Carbon Noir',
         category: 'Dark & Premium',
-        description: 'Aerospace composite weave with crimson edge lighting and stealth technical accents.',
+        description:
+            'Aerospace composite weave with crimson edge lighting and stealth technical accents.',
         url: '/covers/templates/dark-carbon-noir.svg',
         aspectRatio: '16:9',
     },

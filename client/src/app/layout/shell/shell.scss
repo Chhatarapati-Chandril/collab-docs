@@ -2,4 +2,26 @@
     padding: 24px;
     max-width: 1200px;
     margin: 0 auto;
+
+    // Editor: Full-width canvas with centered document sheet & zero outer scroll
+    &:has(app-editor) {
+        padding: 0 !important;
+        max-width: none !important;
+        margin: 0 !important;
+        width: 100% !important;
+        height: calc(100vh - var(--app-navbar-height, 52px)) !important;
+        max-height: calc(100vh - var(--app-navbar-height, 52px)) !important;
+        overflow: hidden !important;
+        background: var(--mat-sys-surface);
+    }
+
+    // Dedicated Full-Screen Gemini Workspace: edge-to-edge with non-scrollable page
+    &:has(app-gemini-workspace) {
+        padding: 0 !important;
+        max-width: none !important;
+        margin: 0 !important;
+        height: calc(100vh - var(--app-navbar-height, 52px)) !important;
+        max-height: calc(100vh - var(--app-navbar-height, 52px)) !important;
+        overflow: hidden !important;
+    }
 }
