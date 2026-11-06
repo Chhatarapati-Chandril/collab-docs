@@ -1,6 +1,4 @@
-@if (isReady()) {
-    <router-outlet />
-}
+<router-outlet />
 
 @if (!isFullyHidden()) {
     <app-splash-screen [class.fade-out]="isReady()" />
