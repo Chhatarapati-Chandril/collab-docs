@@ -97,7 +97,7 @@ export class AuthService {
         );
         expiresAt.setDate(expiresAt.getDate() + ttl);
 
-        const hashedRefreshToken = await this.hashService.hash(refreshToken);
+        const hashedRefreshToken = this.hashService.hashToken(refreshToken);
 
         await this.prisma.refreshToken.create({
             data: { token: hashedRefreshToken, userId: user.id, expiresAt },
@@ -112,27 +112,21 @@ export class AuthService {
         try {
             const payload = this.tokenService.verifyRefreshToken(refreshToken);
 
-            const storedTokens = await this.prisma.refreshToken.findMany({
-                where: { userId: payload.sub },
+            const hashedRefreshToken = this.hashService.hashToken(refreshToken);
+
+            const storedToken = await this.prisma.refreshToken.findUnique({
+                where: { token: hashedRefreshToken },
             });
 
-            let storedTokenId: string | null = null;
-
-            for (const storedToken of storedTokens) {
-                const isMatch = await this.hashService.compare(refreshToken, storedToken.token);
-                if (isMatch) {
-                    if (storedToken.expiresAt <= new Date()) {
-                        await this.prisma.refreshToken.delete({
-                            where: { id: storedToken.id },
-                        });
-                        throw new UnauthorizedException('Refresh token has expired');
-                    }
-                    storedTokenId = storedToken.id;
-                    break;
-                }
-            }
-            if (!storedTokenId) {
+            if (!storedToken || storedToken.userId !== payload.sub) {
                 throw new UnauthorizedException('Invalid refresh token');
+            }
+
+            if (storedToken.expiresAt <= new Date()) {
+                await this.prisma.refreshToken.delete({
+                    where: { id: storedToken.id },
+                });
+                throw new UnauthorizedException('Refresh token has expired');
             }
 
             const user = await this.prisma.user.findUnique({
@@ -164,17 +158,17 @@ export class AuthService {
             const expiresAt = new Date();
             expiresAt.setDate(expiresAt.getDate() + refreshTokenExpiresInDays);
 
-            const hashedRefreshToken = await this.hashService.hash(newRefreshToken);
+            const newHashedRefreshToken = this.hashService.hashToken(newRefreshToken);
 
             await this.prisma.$transaction([
-                this.prisma.refreshToken.deleteMany({
+                this.prisma.refreshToken.delete({
                     where: {
-                        id: storedTokenId,
+                        id: storedToken.id,
                     },
                 }),
                 this.prisma.refreshToken.create({
                     data: {
-                        token: hashedRefreshToken,
+                        token: newHashedRefreshToken,
                         userId: user.id,
                         expiresAt,
                     },
@@ -196,26 +190,14 @@ export class AuthService {
     async logout(refreshToken: string): Promise<void> {
         try {
             const payload = this.tokenService.verifyRefreshToken(refreshToken);
+            const hashedRefreshToken = this.hashService.hashToken(refreshToken);
 
-            const storedTokens = await this.prisma.refreshToken.findMany({
+            await this.prisma.refreshToken.deleteMany({
                 where: {
+                    token: hashedRefreshToken,
                     userId: payload.sub,
                 },
             });
-
-            for (const storedToken of storedTokens) {
-                const isMatch = await this.hashService.compare(refreshToken, storedToken.token);
-
-                if (isMatch) {
-                    await this.prisma.refreshToken.delete({
-                        where: {
-                            id: storedToken.id,
-                        },
-                    });
-
-                    return;
-                }
-            }
         } catch (error) {
             // Logout should still succeed from the client's perspective.
             // The cookie will be cleared by the controller.

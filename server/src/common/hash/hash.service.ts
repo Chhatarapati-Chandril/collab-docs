@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class HashService {
@@ -22,5 +23,14 @@ export class HashService {
 
     async compare(value: string, hashedValue: string): Promise<boolean> {
         return bcrypt.compare(value, hashedValue);
+    }
+
+    /**
+     * Hashes high-entropy tokens (like JWT refresh tokens) using SHA-256.
+     * Unlike bcrypt, SHA-256 does NOT suffer from a 72-byte truncation limit
+     * and is deterministic, allowing fast O(1) indexed lookups in the database.
+     */
+    hashToken(token: string): string {
+        return crypto.createHash('sha256').update(token).digest('hex');
     }
 }
